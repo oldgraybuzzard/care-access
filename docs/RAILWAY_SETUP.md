@@ -7,6 +7,14 @@ This guide will help you deploy the FCF Platform to Railway with:
 - API Service (NestJS)
 - Worker Service (NestJS)
 
+### Build Configuration
+
+The project uses **Nixpacks** for building on Railway:
+- ✅ `services/api/nixpacks.toml` - API service build configuration
+- ✅ `services/worker/nixpacks.toml` - Worker service build configuration
+- ✅ Automatic Prisma migrations on API deployment
+- ✅ Monorepo support with separate root directories
+
 ## Step 1: Create a New Project
 
 1. Go to [Railway Dashboard](https://railway.app/dashboard)
@@ -33,9 +41,10 @@ This guide will help you deploy the FCF Platform to Railway with:
 ### 3.2 Configure API Service
 
 1. Click on the service → **"Settings"**
-2. Set **Root Directory**: `services/api`
-3. Set **Build Command**: (Railway will use railway.json automatically)
-4. Set **Start Command**: (Railway will use railway.json automatically)
+2. Rename service to **"api"** (optional, for clarity)
+3. Set **Root Directory**: `services/api`
+4. Set **Watch Paths**: `services/api/**` (optional, to only redeploy on API changes)
+5. Build and start commands are automatically detected from `nixpacks.toml`
 
 ### 3.3 Set Environment Variables
 
@@ -93,8 +102,8 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 1. Click on the service → **"Settings"**
 2. Rename service to **"worker"** (for clarity)
 3. Set **Root Directory**: `services/worker`
-4. Set **Build Command**: (Railway will use railway.json automatically)
-5. Set **Start Command**: (Railway will use railway.json automatically)
+4. Set **Watch Paths**: `services/worker/**,services/api/prisma/**` (to redeploy on worker or schema changes)
+5. Build and start commands are automatically detected from `nixpacks.toml`
 
 ### 4.3 Set Environment Variables
 

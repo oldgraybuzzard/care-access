@@ -2,11 +2,18 @@
 
 Use this checklist to deploy the FCF Platform to Railway step by step.
 
+## 📋 Important Notes
+
+- ✅ **Nixpacks Configuration**: Both `services/api/nixpacks.toml` and `services/worker/nixpacks.toml` are configured
+- ✅ **Prisma Setup**: Database migrations run automatically on API deployment
+- ✅ **Monorepo Support**: Each service has its own root directory configuration
+
 ## ✅ Pre-Deployment
 
 - [x] GitHub repository created: `oldgraybuzzard/care-access`
 - [x] Code pushed to `develop` branch
 - [x] Railway account connected to GitHub
+- [x] Nixpacks configuration files created
 - [ ] ExtendedReach API credentials obtained
 - [ ] Zoho API credentials obtained (optional)
 
@@ -36,8 +43,8 @@ Use this checklist to deploy the FCF Platform to Railway step by step.
 - [ ] Click on service → "Settings"
 - [ ] Rename to "api" (optional, for clarity)
 - [ ] Set Root Directory: `services/api`
-- [ ] Verify Build Command (auto from railway.json)
-- [ ] Verify Start Command (auto from railway.json)
+- [ ] Set Watch Paths: `services/api/**` (optional, to only redeploy on API changes)
+- [ ] Build and start commands are auto-detected from `nixpacks.toml`
 
 ### Link Database
 - [ ] Go to "Service" tab
@@ -88,8 +95,8 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 - [ ] Click on service → "Settings"
 - [ ] Rename to "worker"
 - [ ] Set Root Directory: `services/worker`
-- [ ] Verify Build Command (auto from railway.json)
-- [ ] Verify Start Command (auto from railway.json)
+- [ ] Set Watch Paths: `services/worker/**,services/api/prisma/**` (to redeploy on worker or schema changes)
+- [ ] Build and start commands are auto-detected from `nixpacks.toml`
 
 ### Link Database
 - [ ] Go to "Service" tab
