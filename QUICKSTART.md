@@ -142,6 +142,14 @@ docker-compose restart postgres
 lsof -ti:3000 | xargs kill -9
 ```
 
+### PostgreSQL Port 5432 Conflict
+If you have PostgreSQL already running locally, Docker uses port **5433** instead:
+```bash
+# The Docker PostgreSQL is accessible at localhost:5433
+# Update your .env file if needed:
+DATABASE_URL="postgresql://fcf_user:fcf_password@localhost:5433/fcf_platform?schema=public"
+```
+
 ### Database Connection Error
 ```bash
 # Restart PostgreSQL

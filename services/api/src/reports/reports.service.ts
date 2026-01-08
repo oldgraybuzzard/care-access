@@ -104,7 +104,7 @@ export class ReportsService {
         reportDefinitionId: dto.reportDefinitionId || null,
         requestedBy: userId,
         status: 'running',
-        metaJson: dto,
+        metaJson: dto as any,
       },
     });
 
@@ -204,13 +204,13 @@ export class ReportsService {
     });
   }
 
-  private async getIntakesVsClosuresTrend(filters: any) {
+  private async getIntakesVsClosuresTrend(filters: any): Promise<any[]> {
     // This would typically use KpiDaily table for better performance
     const startDate = filters?.startDate ? new Date(filters.startDate) : new Date(new Date().setMonth(new Date().getMonth() - 6));
     const endDate = filters?.endDate ? new Date(filters.endDate) : new Date();
 
-    return this.prisma.$queryRaw`
-      SELECT 
+    const result = await this.prisma.$queryRaw`
+      SELECT
         DATE_TRUNC('month', opened_at) as month,
         COUNT(*) FILTER (WHERE opened_at IS NOT NULL) as intakes,
         COUNT(*) FILTER (WHERE closed_at IS NOT NULL) as closures
@@ -219,6 +219,8 @@ export class ReportsService {
       GROUP BY month
       ORDER BY month
     `;
+
+    return result as any[];
   }
 
   private async getOverdueComplianceList(filters: any) {
