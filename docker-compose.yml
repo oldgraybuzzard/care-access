@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: fcf-postgres
+    environment:
+      POSTGRES_USER: fcf_user
+      POSTGRES_PASSWORD: fcf_password
+      POSTGRES_DB: fcf_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fcf_user -d fcf_platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: fcf-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    container_name: fcf-api
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://fcf_user:fcf_password@postgres:5432/fcf_platform?schema=public
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: development-secret-change-in-production
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_EXPIRES_IN: 7d
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./services/api:/app
+      - /app/node_modules
+    command: npm run start:dev
+
+  worker:
+    build:
+      context: ./services/worker
+      dockerfile: Dockerfile
+    container_name: fcf-worker
+    environment:
+      DATABASE_URL: postgresql://fcf_user:fcf_password@postgres:5432/fcf_platform?schema=public
+      REDIS_URL: redis://redis:6379
+      SYNC_INTERVAL_MINUTES: 60
+      EXTENDEDREACH_BASE_URL: https://api.extendedreach.com
+      EXTENDEDREACH_CLIENT_ID: your-client-id
+      EXTENDEDREACH_CLIENT_SECRET: your-client-secret
+      NODE_ENV: development
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./services/worker:/app
+      - /app/node_modules
+    command: npm run start:dev
+
+volumes:
+  postgres_data:
+  redis_data:
+
