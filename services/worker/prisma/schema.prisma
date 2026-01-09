@@ -1,1 +1,322 @@
-../../api/prisma/schema.prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Identity & Security
+// ============================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String   @map("password_hash")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  roles        UserRole[]
+  auditLogs    AuditLog[]
+  reportRuns   ReportRun[]
+  ownedReports ReportDefinition[]
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  users UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId String @map("user_id")
+  roleId String @map("role_id")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String?  @map("entity_id")
+  metaJson   Json?    @map("meta_json")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================
+// Vendor Integration
+// ============================================
+
+model VendorSource {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tokens    VendorToken[]
+  clients   Client[]
+  cases     Case[]
+  activities Activity[]
+  services  Service[]
+  documents Document[]
+
+  @@map("vendor_sources")
+}
+
+model VendorToken {
+  id           String    @id @default(uuid())
+  sourceId     String    @map("source_id")
+  accessToken  String    @map("access_token")
+  refreshToken String?   @map("refresh_token")
+  expiresAt    DateTime? @map("expires_at")
+  metaJson     Json?     @map("meta_json")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  source VendorSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@map("vendor_tokens")
+}
+
+// ============================================
+// Reference Data
+// ============================================
+
+model Program {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  clients  Client[]
+  cases    Case[]
+  kpiDaily KpiDaily[]
+
+  @@map("programs")
+}
+
+model Worker {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?  @unique
+  createdAt DateTime @default(now()) @map("created_at")
+
+  cases    Case[]
+  kpiDaily KpiDaily[]
+
+  @@map("workers")
+}
+
+// ============================================
+// Cached Entities
+// ============================================
+
+model Client {
+  id              String   @id @default(uuid())
+  vendorSourceId  String   @map("vendor_source_id")
+  vendorClientId  String   @map("vendor_client_id")
+  firstName       String   @map("first_name")
+  lastName        String   @map("last_name")
+  dob             DateTime?
+  programId       String?  @map("program_id")
+  status          String
+  metaJson        Json?    @map("meta_json")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  vendorSource VendorSource @relation(fields: [vendorSourceId], references: [id])
+  program      Program?     @relation(fields: [programId], references: [id])
+  cases        Case[]
+
+  @@unique([vendorSourceId, vendorClientId])
+  @@index([status])
+  @@index([programId])
+  @@map("clients")
+}
+
+model Case {
+  id                String    @id @default(uuid())
+  vendorSourceId    String    @map("vendor_source_id")
+  vendorCaseId      String    @map("vendor_case_id")
+  clientId          String    @map("client_id")
+  status            String
+  openedAt          DateTime  @map("opened_at")
+  closedAt          DateTime? @map("closed_at")
+  assignedWorkerId  String?   @map("assigned_worker_id")
+  programId         String?   @map("program_id")
+  metaJson          Json?     @map("meta_json")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  vendorSource VendorSource @relation(fields: [vendorSourceId], references: [id])
+  client       Client       @relation(fields: [clientId], references: [id])
+  worker       Worker?      @relation(fields: [assignedWorkerId], references: [id])
+  program      Program?     @relation(fields: [programId], references: [id])
+  activities   Activity[]
+  services     Service[]
+  documents    Document[]
+
+  @@unique([vendorSourceId, vendorCaseId])
+  @@index([clientId])
+  @@index([status])
+  @@index([assignedWorkerId])
+  @@index([programId])
+  @@index([openedAt])
+  @@map("cases")
+}
+
+model Activity {
+  id                String   @id @default(uuid())
+  vendorSourceId    String   @map("vendor_source_id")
+  vendorActivityId  String   @map("vendor_activity_id")
+  caseId            String   @map("case_id")
+  activityType      String   @map("activity_type")
+  occurredAt        DateTime @map("occurred_at")
+  summary           String?
+  metaJson          Json?    @map("meta_json")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  vendorSource VendorSource @relation(fields: [vendorSourceId], references: [id])
+  case         Case         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorSourceId, vendorActivityId])
+  @@index([caseId])
+  @@index([activityType])
+  @@index([occurredAt])
+  @@map("activities")
+}
+
+model Service {
+  id               String    @id @default(uuid())
+  vendorSourceId   String    @map("vendor_source_id")
+  vendorServiceId  String    @map("vendor_service_id")
+  caseId           String    @map("case_id")
+  serviceType      String    @map("service_type")
+  startAt          DateTime  @map("start_at")
+  endAt            DateTime? @map("end_at")
+  metaJson         Json?     @map("meta_json")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  vendorSource VendorSource @relation(fields: [vendorSourceId], references: [id])
+  case         Case         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorSourceId, vendorServiceId])
+  @@index([caseId])
+  @@index([serviceType])
+  @@index([startAt])
+  @@map("services")
+}
+
+model Document {
+  id                String   @id @default(uuid())
+  vendorSourceId    String   @map("vendor_source_id")
+  vendorDocumentId  String   @map("vendor_document_id")
+  caseId            String   @map("case_id")
+  title             String
+  docType           String   @map("doc_type")
+  metaJson          Json?    @map("meta_json")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  vendorSource VendorSource @relation(fields: [vendorSourceId], references: [id])
+  case         Case         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  @@unique([vendorSourceId, vendorDocumentId])
+  @@index([caseId])
+  @@index([docType])
+  @@map("documents")
+}
+
+// ============================================
+// Reporting
+// ============================================
+
+model ReportDefinition {
+  id             String   @id @default(uuid())
+  name           String
+  type           String   // 'standard' | 'custom'
+  ownerUserId    String?  @map("owner_user_id")
+  definitionJson Json     @map("definition_json")
+  isShared       Boolean  @default(false) @map("is_shared")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  owner User?       @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
+  runs  ReportRun[]
+
+  @@index([type])
+  @@index([ownerUserId])
+  @@map("report_definitions")
+}
+
+model ReportRun {
+  id                   String    @id @default(uuid())
+  reportDefinitionId   String    @map("report_definition_id")
+  requestedBy          String    @map("requested_by")
+  status               String    // 'pending' | 'running' | 'completed' | 'failed'
+  startedAt            DateTime  @default(now()) @map("started_at")
+  finishedAt           DateTime? @map("finished_at")
+  rowCount             Int?      @map("row_count")
+  metaJson             Json?     @map("meta_json")
+
+  reportDefinition ReportDefinition @relation(fields: [reportDefinitionId], references: [id], onDelete: Cascade)
+  user             User             @relation(fields: [requestedBy], references: [id])
+
+  @@index([reportDefinitionId])
+  @@index([requestedBy])
+  @@index([status])
+  @@map("report_runs")
+}
+
+// ============================================
+// Dashboard KPIs
+// ============================================
+
+model KpiDaily {
+  id            String   @id @default(uuid())
+  programId     String?  @map("program_id")
+  workerId      String?  @map("worker_id")
+  date          DateTime @db.Date
+  activeCases   Int      @default(0) @map("active_cases")
+  intakes       Int      @default(0)
+  closures      Int      @default(0)
+  overdueCount  Int      @default(0) @map("overdue_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  program Program? @relation(fields: [programId], references: [id])
+  worker  Worker?  @relation(fields: [workerId], references: [id])
+
+  @@unique([date, programId, workerId])
+  @@index([date])
+  @@index([programId])
+  @@index([workerId])
+  @@map("kpi_daily")
+}
+
