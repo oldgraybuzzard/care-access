@@ -19,70 +19,71 @@ Use this checklist to deploy the FCF Platform to Railway step by step.
 
 ## 📦 Step 1: Create Railway Project
 
-- [ ] Go to https://railway.app/dashboard
-- [ ] Click "New Project"
-- [ ] Select "Deploy from GitHub repo"
-- [ ] Choose `oldgraybuzzard/care-access`
-- [ ] Select `develop` branch
+- [x] Go to https://railway.app/dashboard
+- [x] Click "New Project"
+- [x] Select "Deploy from GitHub repo"
+- [x] Choose `oldgraybuzzard/care-access`
+- [x] Select `develop` branch
 
 ## 🗄️ Step 2: Add PostgreSQL Database
 
-- [ ] In Railway project, click "+ New"
-- [ ] Select "Database" → "Add PostgreSQL"
-- [ ] Wait for database to provision
-- [ ] Note: DATABASE_URL is automatically created
+- [x] In Railway project, click "+ New"
+- [x] Select "Database" → "Add PostgreSQL"
+- [x] Wait for database to provision
+- [x] Note: DATABASE_URL is automatically created
 
-## 🔧 Step 3: Deploy API Service
+## 🔧 Step 3: Deploy API Service ✅ COMPLETE
 
 ### Create Service
-- [ ] Click "+ New" → "GitHub Repo"
-- [ ] Select `oldgraybuzzard/care-access`
-- [ ] Service is created
+- [x] Click "+ New" → "GitHub Repo"
+- [x] Select `oldgraybuzzard/care-access`
+- [x] Service is created
 
 ### Configure Service
-- [ ] Click on service → "Settings"
-- [ ] Rename to "api" (optional, for clarity)
-- [ ] Set Root Directory: `services/api`
-- [ ] Set Watch Paths: `services/api/**` (optional, to only redeploy on API changes)
-- [ ] Build and start commands are auto-detected from `nixpacks.toml`
+- [x] Click on service → "Settings"
+- [x] Rename to "@fcf/api"
+- [x] Set Root Directory: `services/api`
+- [x] Set Watch Paths: `services/api/**`
+- [x] Build and start commands are auto-detected from `nixpacks.toml`
 
 ### Link Database
-- [ ] Go to "Service" tab
-- [ ] Click "Connect" under PostgreSQL
-- [ ] DATABASE_URL is now available
+- [x] Go to "Service" tab
+- [x] Click "Connect" under PostgreSQL
+- [x] DATABASE_URL is now available
 
 ### Set Environment Variables
-- [ ] Go to "Variables" tab
-- [ ] Add the following variables:
+- [x] Go to "Variables" tab
+- [x] Add the following variables:
 
 ```
 DATABASE_URL=${{Postgres.DATABASE_URL}}
-JWT_SECRET=<paste-generated-secret-here>
-JWT_EXPIRES_IN=15m
-JWT_REFRESH_EXPIRES_IN=7d
+JWT_ACCESS_SECRET=<paste-generated-secret-here>
+JWT_REFRESH_SECRET=<paste-generated-secret-here>
+JWT_ACCESS_EXPIRATION=15m
+JWT_REFRESH_EXPIRATION=7d
 NODE_ENV=production
 PORT=3000
 ```
 
-**Generate JWT_SECRET:**
+**Generate JWT secrets:**
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
-- [ ] JWT_SECRET generated and added
-- [ ] All variables configured
+- [x] JWT secrets generated and added
+- [x] All variables configured
 
 ### Deploy
-- [ ] Click "Deploy" or wait for auto-deploy
-- [ ] Monitor deployment logs
-- [ ] Wait for "✅ Deployment successful"
+- [x] Click "Deploy" or wait for auto-deploy
+- [x] Monitor deployment logs
+- [x] Wait for "✅ Deployment successful"
 
 ### Verify API
-- [ ] Click "Deployments" → Copy domain URL
-- [ ] Visit: `https://your-api.up.railway.app/health`
-- [ ] Should return: `{"status":"ok"}`
-- [ ] Visit: `https://your-api.up.railway.app/api`
-- [ ] Swagger docs should load
+- [x] Click "Deployments" → Copy domain URL
+- [x] Visit: `https://your-api.up.railway.app/health`
+- [x] Should return: `{"status":"ok"}`
+- [x] Visit: `https://your-api.up.railway.app/api`
+- [x] Swagger docs should load
 
 ## ⚙️ Step 4: Deploy Worker Service
 
