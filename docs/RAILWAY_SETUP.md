@@ -42,7 +42,9 @@ The project uses **Nixpacks** for building on Railway:
 
 1. Click on the service → **"Settings"**
 2. Rename service to **"api"** (optional, for clarity)
-3. Set **Root Directory**: `services/api`
+3. **⚠️ CRITICAL**: Set **Root Directory**: `services/api`
+   - This is required because the project is a monorepo
+   - Without this, the build will fail with "Missing script: build"
 4. Set **Watch Paths**: `services/api/**` (optional, to only redeploy on API changes)
 5. Build and start commands are automatically detected from `nixpacks.toml`
 
@@ -247,11 +249,22 @@ DATABASE_URL="<railway-database-url>" npm run seed
 
 ## Troubleshooting
 
-### Build Fails:
+### Build Fails with "Missing script: build":
+
+**Problem**: Railway tries to run `npm run build` but can't find the script.
+
+**Solution**:
+1. Go to service → **"Settings"** → **"Root Directory"**
+2. Set it to `services/api` (for API) or `services/worker` (for Worker)
+3. This is required because the project is a monorepo
+4. Redeploy the service
+
+### Other Build Failures:
 
 - Check **"Deployments"** → **"Build Logs"**
 - Ensure `railway.json` is in the correct directory
 - Verify `package.json` has all required scripts
+- Check that Node.js version matches (should be Node 20)
 
 ### Migration Fails:
 
