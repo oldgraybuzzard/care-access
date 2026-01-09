@@ -85,55 +85,56 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 - [x] Visit: `https://your-api.up.railway.app/api`
 - [x] Swagger docs should load
 
-## ⚙️ Step 4: Deploy Worker Service
+## ⚙️ Step 4: Deploy Worker Service ✅ COMPLETE
 
 ### Create Service
-- [ ] Click "+ New" → "GitHub Repo"
-- [ ] Select `oldgraybuzzard/care-access` again
-- [ ] Second service is created
+- [x] Click "+ New" → "GitHub Repo"
+- [x] Select `oldgraybuzzard/care-access` again
+- [x] Second service is created
 
 ### Configure Service
-- [ ] Click on service → "Settings"
-- [ ] Rename to "worker"
-- [ ] Set Root Directory: `services/worker`
-- [ ] Set Watch Paths: `services/worker/**,services/api/prisma/**` (to redeploy on worker or schema changes)
-- [ ] Build and start commands are auto-detected from `nixpacks.toml`
+- [x] Click on service → "Settings"
+- [x] Rename to "@fcf/worker"
+- [x] Set Root Directory: `services/worker`
+- [x] Set Watch Paths: `services/worker/**`
+- [x] Build and start commands are auto-detected from `nixpacks.toml`
 
 ### Link Database
-- [ ] Go to "Service" tab
-- [ ] Click "Connect" under PostgreSQL
-- [ ] DATABASE_URL is now available
+- [x] Go to "Service" tab
+- [x] Click "Connect" under PostgreSQL
+- [x] DATABASE_URL is now available
 
 ### Set Environment Variables
-- [ ] Go to "Variables" tab
-- [ ] Add the following variables:
+- [x] Go to "Variables" tab
+- [x] Add the following variables:
 
 ```
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 SYNC_INTERVAL_MINUTES=60
 NODE_ENV=production
+WORKER_MODE=true
 EXTENDEDREACH_BASE_URL=https://api.extendedreach.com
-EXTENDEDREACH_CLIENT_ID=<your-client-id>
-EXTENDEDREACH_CLIENT_SECRET=<your-client-secret>
+EXTENDEDREACH_CLIENT_ID=placeholder
+EXTENDEDREACH_CLIENT_SECRET=placeholder
 ZOHO_BASE_URL=https://www.zohoapis.com
-ZOHO_CLIENT_ID=<your-client-id>
-ZOHO_CLIENT_SECRET=<your-client-secret>
+ZOHO_CLIENT_ID=placeholder
+ZOHO_CLIENT_SECRET=placeholder
 ```
 
-- [ ] All variables configured
-- [ ] Vendor credentials added
+- [x] All variables configured
+- [x] Vendor credentials added (placeholders for now)
 
 ### Deploy
-- [ ] Click "Deploy" or wait for auto-deploy
-- [ ] Monitor deployment logs
-- [ ] Wait for "✅ Deployment successful"
+- [x] Click "Deploy" or wait for auto-deploy
+- [x] Monitor deployment logs
+- [x] Wait for "✅ Deployment successful"
 
 ### Verify Worker
-- [ ] Click "Deployments" → "View Logs"
-- [ ] Should see: "🔧 FCF Platform Worker Service starting..."
-- [ ] Should see: "✅ Worker service is running"
+- [x] Click "Deployments" → "View Logs"
+- [x] Should see: "🔧 FCF Platform Worker Service starting..."
+- [x] Should see: "✅ Worker service is running"
 
-## 🌱 Step 5: Seed Database
+## 🌱 Step 5: Seed Database ✅ COMPLETE
 
 ### Option A: Using Railway CLI
 ```bash
@@ -153,21 +154,29 @@ railway service
 railway run npm run seed
 ```
 
-- [ ] Railway CLI installed
-- [ ] Logged in and linked
-- [ ] Seed command executed
-- [ ] Seed successful
+- [x] Railway CLI installed
+- [x] Logged in and linked
+- [x] Seed command executed
+- [x] Seed successful
 
-### Option B: Using Local Connection
+### Option B: Using Local Connection (USED)
 ```bash
 # Get DATABASE_URL from Railway PostgreSQL service
 cd services/api
-DATABASE_URL="<railway-database-url>" npm run seed
+DATABASE_URL="postgresql://postgres:...@metro.proxy.rlwy.net:37708/railway" npm run prisma:seed
 ```
 
-- [ ] DATABASE_URL copied from Railway
-- [ ] Seed command executed locally
-- [ ] Seed successful
+- [x] DATABASE_URL copied from Railway
+- [x] Seed command executed locally
+- [x] Seed successful
+
+**Seed Results:**
+- ✅ Roles created
+- ✅ Admin user created (admin@fcf.org / admin123)
+- ✅ Vendor source created
+- ✅ Programs created
+- ✅ Workers created
+- ✅ Report definitions created
 
 ## 🧪 Step 6: Test the Deployment
 
