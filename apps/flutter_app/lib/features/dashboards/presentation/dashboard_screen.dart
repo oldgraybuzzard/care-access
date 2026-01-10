@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../providers/dashboard_provider.dart';
+import '../widgets/date_range_filter.dart';
+import '../widgets/trend_chart.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -9,6 +11,9 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final kpiDataAsync = ref.watch(kpiDataProvider);
+    final intakesTrendAsync = ref.watch(intakesTrendProvider);
+    final closuresTrendAsync = ref.watch(closuresTrendProvider);
+    final filters = ref.watch(dashboardFiltersProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -18,81 +23,158 @@ class DashboardScreen extends ConsumerWidget {
             icon: const Icon(Icons.refresh),
             onPressed: () {
               ref.invalidate(kpiDataProvider);
+              ref.invalidate(intakesTrendProvider);
+              ref.invalidate(closuresTrendProvider);
             },
             tooltip: 'Refresh',
           ),
         ],
       ),
       drawer: const AppDrawer(),
-      body: kpiDataAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
-        ),
-        error: (error, stack) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red[300],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Error loading dashboard',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  error.toString(),
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey[600],
-                      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Date Range Filter
+            DateRangeFilter(
+              fromDate: filters.fromDate,
+              toDate: filters.toDate,
+              onDateRangeChanged: (from, to) {
+                ref.read(dashboardFiltersProvider.notifier).state =
+                    DashboardFilters(fromDate: from, toDate: to);
+              },
+            ),
+            const SizedBox(height: 16),
+
+            // KPI Cards
+            kpiDataAsync.when(
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(),
                 ),
               ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: () {
-                  ref.invalidate(kpiDataProvider);
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text('Retry'),
+              error: (error, stack) => _ErrorCard(
+                error: error.toString(),
+                onRetry: () => ref.invalidate(kpiDataProvider),
               ),
-            ],
-          ),
+              data: (kpiData) => Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _KpiCard(
+                          title: 'Active Cases',
+                          value: kpiData.activeCases.toString(),
+                          icon: Icons.folder_open,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _KpiCard(
+                          title: 'Intakes',
+                          value: kpiData.intakes.toString(),
+                          icon: Icons.add_circle,
+                          color: Colors.green,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _KpiCard(
+                          title: 'Closures',
+                          value: kpiData.closures.toString(),
+                          icon: Icons.check_circle,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _KpiCard(
+                          title: 'Overdue',
+                          value: kpiData.overdueCount.toString(),
+                          icon: Icons.warning,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Trend Charts
+            intakesTrendAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+              data: (trendData) => TrendChart(
+                data: trendData,
+                title: 'Intakes Trend',
+                lineColor: Colors.green,
+              ),
+            ),
+            const SizedBox(height: 16),
+            closuresTrendAsync.when(
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+              data: (trendData) => TrendChart(
+                data: trendData,
+                title: 'Closures Trend',
+                lineColor: Colors.orange,
+              ),
+            ),
+          ],
         ),
-        data: (kpiData) => GridView.count(
-          crossAxisCount: 2,
-          padding: const EdgeInsets.all(16.0),
-          mainAxisSpacing: 16,
-          crossAxisSpacing: 16,
+      ),
+    );
+  }
+}
+
+class _ErrorCard extends StatelessWidget {
+  final String error;
+  final VoidCallback onRetry;
+
+  const _ErrorCard({
+    required this.error,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
           children: [
-            _KpiCard(
-              title: 'Active Cases',
-              value: kpiData.activeCases.toString(),
-              icon: Icons.folder_open,
-              color: Colors.blue,
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.red[300],
             ),
-            _KpiCard(
-              title: 'Intakes (Month)',
-              value: kpiData.intakes.toString(),
-              icon: Icons.person_add,
-              color: Colors.green,
+            const SizedBox(height: 16),
+            Text(
+              'Error loading data',
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-            _KpiCard(
-              title: 'Closures (Month)',
-              value: kpiData.closures.toString(),
-              icon: Icons.check_circle,
-              color: Colors.orange,
+            const SizedBox(height: 8),
+            Text(
+              error,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
             ),
-            _KpiCard(
-              title: 'Overdue',
-              value: kpiData.overdueCount.toString(),
-              icon: Icons.warning,
-              color: Colors.red,
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry'),
             ),
           ],
         ),
