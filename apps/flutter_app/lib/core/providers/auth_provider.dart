@@ -5,16 +5,18 @@ import '../storage/secure_storage.dart';
 import '../models/auth_state.dart';
 import '../models/user.dart';
 
-final authStateProvider = StreamProvider<AuthState>((ref) async* {
+/// Provider that checks if user is authenticated
+/// This is a FutureProvider that gets invalidated when auth state changes
+final authStateProvider = FutureProvider<AuthState>((ref) async {
   final storage = ref.read(secureStorageProvider);
   final token = await storage.getAccessToken();
   final userJson = await storage.getUser();
 
   if (token != null && userJson != null) {
     final user = User.fromJson(jsonDecode(userJson));
-    yield AuthState(isAuthenticated: true, user: user);
+    return AuthState(isAuthenticated: true, user: user);
   } else {
-    yield const AuthState(isAuthenticated: false);
+    return const AuthState(isAuthenticated: false);
   }
 });
 
@@ -46,6 +48,9 @@ class AuthService {
     await storage.saveAccessToken(accessToken);
     await storage.saveRefreshToken(refreshToken);
     await storage.saveUser(jsonEncode(user));
+
+    // Invalidate auth state to trigger re-check
+    _ref.invalidate(authStateProvider);
   }
 
   Future<void> logout() async {
@@ -59,6 +64,9 @@ class AuthService {
     }
 
     await storage.clearTokens();
+
+    // Invalidate auth state to trigger re-check
+    _ref.invalidate(authStateProvider);
   }
 
   Future<User?> getCurrentUser() async {
@@ -72,4 +80,3 @@ class AuthService {
     return null;
   }
 }
-
