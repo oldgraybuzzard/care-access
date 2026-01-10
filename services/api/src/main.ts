@@ -16,40 +16,42 @@ async function bootstrap() {
   );
 
   // CORS configuration
-  // In production, use environment variable. In development, allow all localhost
-  const isProduction = process.env.NODE_ENV === 'production';
+  // Allow localhost for development and specific origins from env var
+  app.enableCors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (mobile apps, Postman, curl, etc.)
+      if (!origin) {
+        return callback(null, true);
+      }
 
-  if (isProduction && process.env.CORS_ORIGINS) {
-    // Production: Use specific origins from environment variable
-    app.enableCors({
-      origin: process.env.CORS_ORIGINS.split(','),
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    });
-  } else {
-    // Development: Allow all localhost origins and requests with no origin
-    app.enableCors({
-      origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, Postman, etc.)
-        if (!origin) {
+      // Always allow localhost and 127.0.0.1 for development
+      if (
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('https://localhost:') ||
+        origin.startsWith('http://127.0.0.1:') ||
+        origin.startsWith('https://127.0.0.1:')
+      ) {
+        return callback(null, true);
+      }
+
+      // Check environment variable for additional allowed origins
+      if (process.env.CORS_ORIGINS) {
+        const allowedOrigins = process.env.CORS_ORIGINS.split(',').map((o) =>
+          o.trim(),
+        );
+        if (allowedOrigins.includes(origin)) {
           return callback(null, true);
         }
+      }
 
-        // Allow all localhost origins for development
-        if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
-          return callback(null, true);
-        }
-
-        // Log and block other origins in development
-        console.warn(`⚠️  CORS blocked request from origin: ${origin}`);
-        callback(null, false);
-      },
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-    });
-  }
+      // Log blocked origins for debugging
+      console.warn(`⚠️  CORS blocked request from origin: ${origin}`);
+      callback(null, false);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  });
 
   // Swagger/OpenAPI documentation
   const config = new DocumentBuilder()
