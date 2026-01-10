@@ -16,40 +16,40 @@ async function bootstrap() {
   );
 
   // CORS configuration
-  // Allow requests from localhost (development) and production origins
-  const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || [
-    'http://localhost:3000',
-    'http://localhost:8080',
-    /^http:\/\/localhost:\d+$/, // Allow any localhost port for Flutter web dev
-  ];
+  // In production, use environment variable. In development, allow all localhost
+  const isProduction = process.env.NODE_ENV === 'production';
 
-  app.enableCors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or Postman)
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      // Check if origin matches allowed origins
-      const isAllowed = allowedOrigins.some((allowedOrigin) => {
-        if (typeof allowedOrigin === 'string') {
-          return origin === allowedOrigin;
+  if (isProduction && process.env.CORS_ORIGINS) {
+    // Production: Use specific origins from environment variable
+    app.enableCors({
+      origin: process.env.CORS_ORIGINS.split(','),
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    });
+  } else {
+    // Development: Allow all localhost origins and requests with no origin
+    app.enableCors({
+      origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) {
+          return callback(null, true);
         }
-        // Handle regex patterns
-        return allowedOrigin.test(origin);
-      });
 
-      if (isAllowed) {
-        callback(null, true);
-      } else {
+        // Allow all localhost origins for development
+        if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+          return callback(null, true);
+        }
+
+        // Log and block other origins in development
         console.warn(`⚠️  CORS blocked request from origin: ${origin}`);
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  });
+        callback(null, false);
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    });
+  }
 
   // Swagger/OpenAPI documentation
   const config = new DocumentBuilder()
