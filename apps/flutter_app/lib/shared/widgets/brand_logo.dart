@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fcf_app/core/constants/brand_assets.dart';
+import 'package:careaccess/core/constants/brand_assets.dart';
 
 /// Theme-aware CareAccess logo widget that automatically switches between
 /// light and dark mode logos based on the current theme brightness.
@@ -94,10 +94,8 @@ class BrandLogo extends StatelessWidget {
       height: height,
       width: width,
       fit: fit,
-      colorFilter: color != null
-          ? ColorFilter.mode(color!, colorBlendMode)
-          : null,
+      colorFilter:
+          color != null ? ColorFilter.mode(color!, colorBlendMode) : null,
     );
   }
 }
-

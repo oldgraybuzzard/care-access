@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fcf_app/core/models/case.dart';
+import 'package:careaccess/core/models/case.dart';
 
 void main() {
   group('CaseDetail', () {
@@ -161,4 +161,3 @@ void main() {
     });
   });
 }
-

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fcf_app/core/models/case.dart';
-import 'package:fcf_app/features/cases/presentation/case_detail_screen.dart';
-import 'package:fcf_app/features/cases/providers/case_provider.dart';
+import 'package:careaccess/core/models/case.dart';
+import 'package:careaccess/features/cases/presentation/case_detail_screen.dart';
+import 'package:careaccess/features/cases/providers/case_provider.dart';
 
 void main() {
   group('CaseDetailScreen', () {
@@ -108,8 +108,10 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('Error loading case: Failed to load case'),
-          findsOneWidget,);
+      expect(
+        find.text('Error loading case: Failed to load case'),
+        findsOneWidget,
+      );
       expect(find.text('Retry'), findsOneWidget);
     });
 
@@ -159,4 +161,3 @@ void main() {
     });
   });
 }
-

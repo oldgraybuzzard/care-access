@@ -1,5 +1,5 @@
-name: fcf_app
-description: CareAccess Reporting & Visualization App
+name: careaccess
+description: CareAccess is a secure mobile and web platform designed for nonprofit organizations that support children and families, providing onsite access to case information, reporting, and dashboards that help teams protect kids, support families, and improve outcomes.
 publish_to: 'none'
 version: 1.0.0+1
 

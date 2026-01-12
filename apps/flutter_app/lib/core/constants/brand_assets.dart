@@ -5,7 +5,7 @@
 ///
 /// Usage:
 /// ```dart
-/// import 'package:fcf_app/core/constants/brand_assets.dart';
+/// import 'package:careaccess/core/constants/brand_assets.dart';
 ///
 /// SvgPicture.asset(BrandAssets.icon, height: 48);
 /// ```
