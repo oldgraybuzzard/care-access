@@ -60,6 +60,14 @@ class AppDrawer extends ConsumerWidget {
           ),
           const Divider(),
           ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings'),
+            onTap: () {
+              context.go('/settings');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Logout'),
             onTap: () async {

@@ -11,6 +11,7 @@ import '../../features/children/presentation/child_form_screen.dart';
 import '../../features/children/presentation/child_intake_screen.dart';
 import '../../features/reports/presentation/reports_screen.dart';
 import '../../features/dashboards/presentation/dashboard_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
 import '../providers/auth_provider.dart';
 
 /// Notifier that listens to auth state changes and notifies GoRouter
@@ -116,6 +117,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/dashboard',
         builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
+        path: '/settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
   );
