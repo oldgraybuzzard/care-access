@@ -5,6 +5,8 @@ import '../../features/auth/presentation/login_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../features/clients/presentation/client_detail_screen.dart';
 import '../../features/cases/presentation/case_detail_screen.dart';
+import '../../features/children/presentation/children_list_screen.dart';
+import '../../features/children/presentation/child_profile_screen.dart';
 import '../../features/reports/presentation/reports_screen.dart';
 import '../../features/dashboards/presentation/dashboard_screen.dart';
 import '../providers/auth_provider.dart';
@@ -77,6 +79,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return CaseDetailScreen(caseId: id);
+        },
+      ),
+      GoRoute(
+        path: '/children',
+        builder: (context, state) => const ChildrenListScreen(),
+      ),
+      GoRoute(
+        path: '/children/:id',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return ChildProfileScreen(childId: id);
         },
       ),
       GoRoute(

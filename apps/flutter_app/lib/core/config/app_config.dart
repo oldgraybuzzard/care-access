@@ -15,8 +15,9 @@ class AppConfig {
   });
 
   /// Development configuration (local API)
+  /// Using 127.0.0.1 instead of localhost for iOS simulator compatibility
   static const development = AppConfig(
-    apiBaseUrl: 'http://localhost:3000',
+    apiBaseUrl: 'http://127.0.0.1:3001',
     environment: 'development',
     enableLogging: true,
   );
@@ -29,11 +30,11 @@ class AppConfig {
   );
 
   /// Get current configuration based on environment variable
-  /// Falls back to development if not specified
+  /// Falls back to production (easier for testing without local API)
   static AppConfig get current {
     const env = String.fromEnvironment(
       'ENVIRONMENT',
-      defaultValue: 'development',
+      defaultValue: 'production',
     );
 
     // Allow override via API_BASE_URL environment variable

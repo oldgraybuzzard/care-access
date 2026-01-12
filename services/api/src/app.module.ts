@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { SearchModule } from './search/search.module';
 import { ClientsModule } from './clients/clients.module';
 import { CasesModule } from './cases/cases.module';
+import { ChildrenModule } from './children/children.module';
 import { ReportsModule } from './reports/reports.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { AuditModule } from './audit/audit.module';
@@ -30,6 +31,7 @@ import { AuditModule } from './audit/audit.module';
     SearchModule,
     ClientsModule,
     CasesModule,
+    ChildrenModule,
     ReportsModule,
     DashboardsModule,
     AuditModule,

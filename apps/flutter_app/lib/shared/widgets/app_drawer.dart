@@ -43,6 +43,14 @@ class AppDrawer extends ConsumerWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.child_care),
+            title: const Text('Children'),
+            onTap: () {
+              context.go('/children');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.assessment),
             title: const Text('Reports'),
             onTap: () {
@@ -66,4 +74,3 @@ class AppDrawer extends ConsumerWidget {
     );
   }
 }
-

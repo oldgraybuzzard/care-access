@@ -152,6 +152,7 @@ model Client {
   vendorSource VendorSource @relation(fields: [vendorSourceId], references: [id])
   program      Program?     @relation(fields: [programId], references: [id])
   cases        Case[]
+  child        Child?       // New child-centered profile
 
   @@unique([vendorSourceId, vendorClientId])
   @@index([status])
@@ -180,6 +181,7 @@ model Case {
   activities   Activity[]
   services     Service[]
   documents    Document[]
+  goals        Goal[]       // Child goals linked to case
 
   @@unique([vendorSourceId, vendorCaseId])
   @@index([clientId])
@@ -252,6 +254,369 @@ model Document {
   @@index([caseId])
   @@index([docType])
   @@map("documents")
+}
+
+// ============================================
+// Child-Centered Case Management
+// ============================================
+
+model Child {
+  id                String    @id @default(uuid())
+  clientId          String?   @unique @map("client_id") // Link to legacy Client if exists
+  firstName         String    @map("first_name")
+  middleName        String?   @map("middle_name")
+  lastName          String    @map("last_name")
+  nickname          String?
+  dateOfBirth       DateTime  @map("date_of_birth")
+  gender            String
+  raceEthnicity     String?   @map("race_ethnicity")
+  preferredLanguage String?   @default("English") @map("preferred_language")
+  photoUrl          String?   @map("photo_url")
+
+  // Identifiers
+  ssn               String?   @map("ssn") // Encrypted
+  medicaidId        String?   @map("medicaid_id")
+  schoolId          String?   @map("school_id")
+
+  // Status & Custody
+  status            String    @default("Active") // Active, Inactive, Discharged
+  custodyStatus     String?   @map("custody_status") // Foster, Kinship, Biological, Group Home
+  legalStatus       String?   @map("legal_status") // Court orders, dependency status
+
+  // Referral Information
+  referralSource    String?   @map("referral_source")
+  referralReason    String?   @map("referral_reason")
+  presentingIssues  String?   @map("presenting_issues") @db.Text
+
+  // Medical & Health (JSON for flexibility)
+  medications       Json?     // [{name, dosage, frequency, prescriber}]
+  allergies         Json?     // [{type, allergen, severity, reaction}]
+  medicalConditions Json?     @map("medical_conditions") // [{condition, diagnosis_date, treating_physician}]
+  mentalHealthDx    Json?     @map("mental_health_dx") // [{diagnosis, diagnosed_by, date}]
+
+  // Behavioral & Emotional
+  triggers          Json?     // [trigger descriptions]
+  copingMechanisms  Json?     @map("coping_mechanisms") // [healthy and unhealthy coping]
+  traumaHistory     String?   @map("trauma_history") @db.Text
+  attachmentStyle   String?   @map("attachment_style")
+
+  // Interests & Strengths
+  interests         Json?     // [hobbies, activities they enjoy]
+  strengths         Json?     // [positive attributes, talents]
+  likes             Json?     // [favorite things]
+  dislikes          Json?     // [things they avoid]
+  fears             Json?     // [specific fears, anxieties]
+
+  // Emergency Contacts
+  emergencyContacts Json?     @map("emergency_contacts") // [{name, relationship, phone}]
+
+  // Family
+  familyId          String?   @map("family_id")
+
+  // Metadata
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  createdBy         String?   @map("created_by")
+
+  // Relations
+  client            Client?   @relation(fields: [clientId], references: [id])
+  family            Family?   @relation(fields: [familyId], references: [id])
+  assessments       Assessment[]
+  educationRecords  EducationRecord[]
+  medicalRecords    MedicalRecord[]
+  incidents         BehavioralIncident[]
+  goals             Goal[]
+  notes             ChildNote[]
+
+  @@index([status])
+  @@index([familyId])
+  @@index([dateOfBirth])
+  @@map("children")
+}
+
+model Family {
+  id                String   @id @default(uuid())
+  familyName        String   @map("family_name")
+  primaryContact    String?  @map("primary_contact")
+  phone             String?
+  email             String?
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?  @map("zip_code")
+
+  // Living Situation
+  housingType       String?  @map("housing_type") // House, Apartment, Shelter, etc.
+  housingStatus     String?  @map("housing_status") // Owned, Rented, Temporary, etc.
+  householdIncome   String?  @map("household_income") // Income range
+  employmentStatus  String?  @map("employment_status")
+
+  // Family Dynamics (JSON for flexibility)
+  familyComposition Json?    @map("family_composition") // [{name, relationship, age, living_in_home}]
+  supportNetwork    Json?    @map("support_network") // [support people/organizations]
+  familyStressors   Json?    @map("family_stressors") // [identified stressors]
+  familyStrengths   Json?    @map("family_strengths") // [identified strengths]
+
+  // Metadata
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  children          Child[]
+  homeVisits        HomeVisit[]
+
+  @@map("families")
+}
+
+model Assessment {
+  id                String   @id @default(uuid())
+  childId           String   @map("child_id")
+  assessmentType    String   @map("assessment_type") // Intake, Ongoing, Discharge, etc.
+  assessmentDate    DateTime @map("assessment_date")
+  assessorId        String?  @map("assessor_id") // User who conducted assessment
+
+  // Assessment Areas (JSON for flexibility)
+  emotionalState    Json?    @map("emotional_state")
+  behavioralConcerns Json?   @map("behavioral_concerns")
+  traumaIndicators  Json?    @map("trauma_indicators")
+  familyDynamics    Json?    @map("family_dynamics")
+  schoolPerformance Json?    @map("school_performance")
+  socialRelationships Json?  @map("social_relationships")
+  riskFactors       Json?    @map("risk_factors")
+  protectiveFactors Json?    @map("protective_factors")
+
+  // Recommendations
+  recommendations   String?  @db.Text
+  nextReviewDate    DateTime? @map("next_review_date")
+
+  // Metadata
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@index([childId])
+  @@index([assessmentDate])
+  @@map("assessments")
+}
+
+model EducationRecord {
+  id                String   @id @default(uuid())
+  childId           String   @map("child_id")
+  schoolYear        String   @map("school_year") // 2023-2024
+  schoolName        String   @map("school_name")
+  gradeLevel        String   @map("grade_level")
+
+  // Academic Performance
+  gpa               Float?
+  readingLevel      String?  @map("reading_level")
+  mathLevel         String?  @map("math_level")
+  strugglingSubjects Json?   @map("struggling_subjects")
+
+  // Attendance & Behavior
+  daysPresent       Int?     @map("days_present")
+  daysAbsent        Int?     @map("days_absent")
+  tardies           Int?
+  suspensions       Int?
+  detentions        Int?
+
+  // Special Education
+  hasIep            Boolean  @default(false) @map("has_iep")
+  has504Plan        Boolean  @default(false) @map("has_504_plan")
+  specialServices   Json?    @map("special_services")
+
+  // Additional Info
+  teacherFeedback   String?  @map("teacher_feedback") @db.Text
+  extracurricular   Json?    // [activities, clubs, sports]
+
+  // Metadata
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@index([childId])
+  @@index([schoolYear])
+  @@map("education_records")
+}
+
+model MedicalRecord {
+  id                String   @id @default(uuid())
+  childId           String   @map("child_id")
+  recordType        String   @map("record_type") // Checkup, Immunization, Specialist Visit, etc.
+  recordDate        DateTime @map("record_date")
+  provider          String?  // Doctor/clinic name
+
+  // Details
+  diagnosis         String?
+  treatment         String?  @db.Text
+  prescriptions     Json?    // [medications prescribed]
+  followUpNeeded    Boolean  @default(false) @map("follow_up_needed")
+  followUpDate      DateTime? @map("follow_up_date")
+
+  notes             String?  @db.Text
+
+  // Metadata
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@index([childId])
+  @@index([recordDate])
+  @@map("medical_records")
+}
+
+model BehavioralIncident {
+  id                String   @id @default(uuid())
+  childId           String   @map("child_id")
+  incidentDate      DateTime @map("incident_date")
+  incidentType      String   @map("incident_type") // Aggression, Self-harm, Elopement, etc.
+  severity          String   // Minor, Moderate, Severe, Critical
+
+  // Incident Details
+  description       String   @db.Text
+  location          String?
+  trigger           String?  @db.Text
+  antecedent        String?  @db.Text // What happened before
+
+  // Response & Outcome
+  interventionUsed  String?  @map("intervention_used") @db.Text
+  outcome           String?  @db.Text
+  injuriesReported  Boolean  @default(false) @map("injuries_reported")
+  policeInvolved    Boolean  @default(false) @map("police_involved")
+
+  // Follow-up
+  followUpActions   String?  @map("follow_up_actions") @db.Text
+  parentNotified    Boolean  @default(false) @map("parent_notified")
+
+  // Metadata
+  reportedBy        String?  @map("reported_by") // User ID
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@index([childId])
+  @@index([incidentDate])
+  @@index([severity])
+  @@map("behavioral_incidents")
+}
+
+model Goal {
+  id                String   @id @default(uuid())
+  childId           String   @map("child_id")
+  caseId            String?  @map("case_id") // Link to case if applicable
+  goalCategory      String   @map("goal_category") // Safety, Behavioral, Educational, Family, Life Skills
+  goalDescription   String   @map("goal_description") @db.Text
+
+  // Timeline
+  startDate         DateTime @map("start_date")
+  targetDate        DateTime @map("target_date")
+  completedDate     DateTime? @map("completed_date")
+
+  // Status & Progress
+  status            String   @default("Active") // Active, Completed, Discontinued
+  progressPercent   Int      @default(0) @map("progress_percent") // 0-100
+
+  // Success Criteria
+  successCriteria   Json?    @map("success_criteria") // [measurable criteria]
+  barriers          Json?    // [identified barriers]
+  interventions     Json?    // [interventions being used]
+
+  // Metadata
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  createdBy         String?  @map("created_by")
+
+  // Relations
+  child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  case              Case?    @relation(fields: [caseId], references: [id])
+  progressNotes     GoalProgress[]
+
+  @@index([childId])
+  @@index([caseId])
+  @@index([status])
+  @@map("goals")
+}
+
+model GoalProgress {
+  id                String   @id @default(uuid())
+  goalId            String   @map("goal_id")
+  progressDate      DateTime @map("progress_date")
+  progressPercent   Int      @map("progress_percent") // 0-100
+  progressNote      String   @map("progress_note") @db.Text
+
+  // Metadata
+  createdAt         DateTime @default(now()) @map("created_at")
+  createdBy         String?  @map("created_by")
+
+  // Relations
+  goal              Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@index([goalId])
+  @@index([progressDate])
+  @@map("goal_progress")
+}
+
+model ChildNote {
+  id                String   @id @default(uuid())
+  childId           String   @map("child_id")
+  noteDate          DateTime @map("note_date")
+  noteType          String   @map("note_type") // Progress, Contact, Observation, etc.
+  subject           String
+  content           String   @db.Text
+
+  // Visibility
+  isConfidential    Boolean  @default(false) @map("is_confidential")
+
+  // Metadata
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  authorId          String   @map("author_id")
+
+  // Relations
+  child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@index([childId])
+  @@index([noteDate])
+  @@index([noteType])
+  @@map("child_notes")
+}
+
+model HomeVisit {
+  id                String   @id @default(uuid())
+  familyId          String   @map("family_id")
+  visitDate         DateTime @map("visit_date")
+  visitType         String   @map("visit_type") // Scheduled, Unannounced, Emergency
+
+  // Visit Details
+  purpose           String?  @db.Text
+  observations      String?  @db.Text
+  homeCondition     String?  @map("home_condition") // Safe, Concerns, Unsafe
+  familyInteraction String?  @map("family_interaction") @db.Text
+
+  // Outcomes
+  concernsIdentified Json?   @map("concerns_identified")
+  actionItems       Json?    @map("action_items")
+  followUpNeeded    Boolean  @default(false) @map("follow_up_needed")
+  followUpDate      DateTime? @map("follow_up_date")
+
+  // Metadata
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  conductedBy       String   @map("conducted_by") // User ID
+
+  // Relations
+  family            Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([familyId])
+  @@index([visitDate])
+  @@map("home_visits")
 }
 
 // ============================================
