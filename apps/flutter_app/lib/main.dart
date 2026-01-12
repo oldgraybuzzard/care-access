@@ -6,20 +6,20 @@ import 'core/theme/app_theme.dart';
 void main() {
   runApp(
     const ProviderScope(
-      child: FCFApp(),
+      child: CareAccessApp(),
     ),
   );
 }
 
-class FCFApp extends ConsumerWidget {
-  const FCFApp({super.key});
+class CareAccessApp extends ConsumerWidget {
+  const CareAccessApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(
-      title: 'FCF Platform',
+      title: 'Care Access',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
@@ -28,4 +28,3 @@ class FCFApp extends ConsumerWidget {
     );
   }
 }
-

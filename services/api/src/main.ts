@@ -62,16 +62,18 @@ async function bootstrap() {
 
   // Swagger/OpenAPI documentation
   const config = new DocumentBuilder()
-    .setTitle('FCF Platform API')
-    .setDescription('Friends of Children and Families - ExtendedReach Reporting API')
+    .setTitle('Care Access API')
+    .setDescription('Comprehensive case management and reporting platform for care organizations')
     .setVersion('1.0')
     .addBearerAuth()
     .addTag('auth', 'Authentication endpoints')
     .addTag('search', 'Global search')
     .addTag('clients', 'Client management')
     .addTag('cases', 'Case management')
+    .addTag('children', 'Children management')
     .addTag('reports', 'Reporting and exports')
     .addTag('dashboards', 'Dashboard and KPIs')
+    .addTag('organizations', 'Organization management')
     .addTag('admin', 'Admin operations')
     .build();
 
@@ -81,7 +83,7 @@ async function bootstrap() {
   const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
 
-  console.log(`🚀 FCF Platform API running on port ${port}`);
+  console.log(`🚀 Care Access API running on port ${port}`);
   console.log(`📚 API Documentation available at /api`);
 }
 
