@@ -9,11 +9,24 @@ class Organization {
   final String slug;
   final String plan;
   final String status;
-  final Map<String, dynamic>? branding;
+  final String? logoUrl;
+  final String? primaryColor;
+
+  // Business Details
+  final String? phone;
+  final String? email;
+  final String? website;
+  final String? address;
+  final String? city;
+  final String? state;
+  final String? zipCode;
+  final String? country;
+  final String? description;
+
   final Map<String, dynamic>? settings;
   final DateTime createdAt;
   final DateTime updatedAt;
-  
+
   // Optional count fields when fetched with stats
   @JsonKey(name: '_count')
   final OrganizationCount? count;
@@ -24,7 +37,17 @@ class Organization {
     required this.slug,
     required this.plan,
     required this.status,
-    this.branding,
+    this.logoUrl,
+    this.primaryColor,
+    this.phone,
+    this.email,
+    this.website,
+    this.address,
+    this.city,
+    this.state,
+    this.zipCode,
+    this.country,
+    this.description,
     this.settings,
     required this.createdAt,
     required this.updatedAt,
@@ -124,19 +147,29 @@ class OrganizationStatsData {
 @JsonSerializable()
 class UpdateOrganizationDto {
   final String? name;
-  final String? slug;
-  final String? plan;
-  final String? status;
-  final Map<String, dynamic>? branding;
-  final Map<String, dynamic>? settings;
+  final String? phone;
+  final String? email;
+  final String? website;
+  final String? address;
+  final String? city;
+  final String? state;
+  final String? zipCode;
+  final String? country;
+  final String? description;
+  final String? primaryColor;
 
   UpdateOrganizationDto({
     this.name,
-    this.slug,
-    this.plan,
-    this.status,
-    this.branding,
-    this.settings,
+    this.phone,
+    this.email,
+    this.website,
+    this.address,
+    this.city,
+    this.state,
+    this.zipCode,
+    this.country,
+    this.description,
+    this.primaryColor,
   });
 
   factory UpdateOrganizationDto.fromJson(Map<String, dynamic> json) =>
@@ -144,4 +177,3 @@ class UpdateOrganizationDto {
 
   Map<String, dynamic> toJson() => _$UpdateOrganizationDtoToJson(this);
 }
-

@@ -1,7 +1,14 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrganizationDto } from './dto/create-organization.dto';
 import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class OrganizationsService {
@@ -70,17 +77,6 @@ export class OrganizationsService {
     // Check if organization exists
     await this.findOne(id);
 
-    // If updating slug, check if new slug is available
-    if (updateOrganizationDto.slug) {
-      const existing = await this.prisma.organization.findUnique({
-        where: { slug: updateOrganizationDto.slug },
-      });
-
-      if (existing && existing.id !== id) {
-        throw new ConflictException('Organization with this slug already exists');
-      }
-    }
-
     return this.prisma.organization.update({
       where: { id },
       data: updateOrganizationDto,
@@ -117,6 +113,222 @@ export class OrganizationsService {
         cases: caseCount,
       },
     };
+  }
+
+  async getOrganizationUsers(organizationId: string) {
+    return this.prisma.user.findMany({
+      where: { organizationId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        roles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async updateOrganizationUser(
+    organizationId: string,
+    userId: string,
+    updateUserDto: UpdateUserDto,
+  ) {
+    // Verify user belongs to the organization
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, organizationId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found in this organization');
+    }
+
+    // If updating email, check if it's already taken
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      const existing = await this.prisma.user.findUnique({
+        where: { email: updateUserDto.email },
+      });
+
+      if (existing) {
+        throw new ConflictException('Email already in use');
+      }
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: updateUserDto,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+        roles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async assignRoleToUser(
+    organizationId: string,
+    userId: string,
+    roleId: string,
+  ) {
+    // Verify user belongs to the organization
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, organizationId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found in this organization');
+    }
+
+    // Verify role exists
+    const role = await this.prisma.role.findUnique({
+      where: { id: roleId },
+    });
+
+    if (!role) {
+      throw new NotFoundException('Role not found');
+    }
+
+    // Check if user already has this role
+    const existing = await this.prisma.userRole.findUnique({
+      where: {
+        userId_roleId: {
+          userId,
+          roleId,
+        },
+      },
+    });
+
+    if (existing) {
+      throw new ConflictException('User already has this role');
+    }
+
+    // Assign role
+    await this.prisma.userRole.create({
+      data: {
+        userId,
+        roleId,
+      },
+    });
+
+    // Return updated user with roles
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        isActive: true,
+        roles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async removeRoleFromUser(
+    organizationId: string,
+    userId: string,
+    roleId: string,
+  ) {
+    // Verify user belongs to the organization
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, organizationId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found in this organization');
+    }
+
+    // Check if user has this role
+    const userRole = await this.prisma.userRole.findUnique({
+      where: {
+        userId_roleId: {
+          userId,
+          roleId,
+        },
+      },
+    });
+
+    if (!userRole) {
+      throw new NotFoundException('User does not have this role');
+    }
+
+    // Remove role
+    await this.prisma.userRole.delete({
+      where: {
+        userId_roleId: {
+          userId,
+          roleId,
+        },
+      },
+    });
+
+    // Return updated user with roles
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        isActive: true,
+        roles: {
+          include: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async getAllRoles() {
+    return this.prisma.role.findMany({
+      select: {
+        id: true,
+        name: true,
+        description: true,
+      },
+      orderBy: { name: 'asc' },
+    });
   }
 }
 

@@ -26,8 +26,19 @@ model Organization {
   trialEndsAt DateTime? @map("trial_ends_at")
 
   // Branding
-  logoUrl     String?  @map("logo_url")
-  primaryColor String? @map("primary_color")
+  logoUrl      String?  @map("logo_url")
+  primaryColor String?  @map("primary_color")
+
+  // Business Details
+  phone        String?
+  email        String?
+  website      String?
+  address      String?
+  city         String?
+  state        String?
+  zipCode      String?  @map("zip_code")
+  country      String?  @default("USA")
+  description  String?  // Organization description/mission statement
 
   // Settings (JSON for flexibility)
   settings    Json?    // Tenant-specific configuration

@@ -12,7 +12,17 @@ Organization _$OrganizationFromJson(Map<String, dynamic> json) => Organization(
       slug: json['slug'] as String,
       plan: json['plan'] as String,
       status: json['status'] as String,
-      branding: json['branding'] as Map<String, dynamic>?,
+      logoUrl: json['logoUrl'] as String?,
+      primaryColor: json['primaryColor'] as String?,
+      phone: json['phone'] as String?,
+      email: json['email'] as String?,
+      website: json['website'] as String?,
+      address: json['address'] as String?,
+      city: json['city'] as String?,
+      state: json['state'] as String?,
+      zipCode: json['zipCode'] as String?,
+      country: json['country'] as String?,
+      description: json['description'] as String?,
       settings: json['settings'] as Map<String, dynamic>?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
@@ -28,7 +38,17 @@ Map<String, dynamic> _$OrganizationToJson(Organization instance) =>
       'slug': instance.slug,
       'plan': instance.plan,
       'status': instance.status,
-      'branding': instance.branding,
+      'logoUrl': instance.logoUrl,
+      'primaryColor': instance.primaryColor,
+      'phone': instance.phone,
+      'email': instance.email,
+      'website': instance.website,
+      'address': instance.address,
+      'city': instance.city,
+      'state': instance.state,
+      'zipCode': instance.zipCode,
+      'country': instance.country,
+      'description': instance.description,
       'settings': instance.settings,
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
@@ -55,7 +75,8 @@ OrganizationStats _$OrganizationStatsFromJson(Map<String, dynamic> json) =>
     OrganizationStats(
       organization:
           Organization.fromJson(json['organization'] as Map<String, dynamic>),
-      stats: OrganizationStatsData.fromJson(json['stats'] as Map<String, dynamic>),
+      stats:
+          OrganizationStatsData.fromJson(json['stats'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$OrganizationStatsToJson(OrganizationStats instance) =>
@@ -86,21 +107,30 @@ UpdateOrganizationDto _$UpdateOrganizationDtoFromJson(
         Map<String, dynamic> json) =>
     UpdateOrganizationDto(
       name: json['name'] as String?,
-      slug: json['slug'] as String?,
-      plan: json['plan'] as String?,
-      status: json['status'] as String?,
-      branding: json['branding'] as Map<String, dynamic>?,
-      settings: json['settings'] as Map<String, dynamic>?,
+      phone: json['phone'] as String?,
+      email: json['email'] as String?,
+      website: json['website'] as String?,
+      address: json['address'] as String?,
+      city: json['city'] as String?,
+      state: json['state'] as String?,
+      zipCode: json['zipCode'] as String?,
+      country: json['country'] as String?,
+      description: json['description'] as String?,
+      primaryColor: json['primaryColor'] as String?,
     );
 
 Map<String, dynamic> _$UpdateOrganizationDtoToJson(
         UpdateOrganizationDto instance) =>
     <String, dynamic>{
       'name': instance.name,
-      'slug': instance.slug,
-      'plan': instance.plan,
-      'status': instance.status,
-      'branding': instance.branding,
-      'settings': instance.settings,
+      'phone': instance.phone,
+      'email': instance.email,
+      'website': instance.website,
+      'address': instance.address,
+      'city': instance.city,
+      'state': instance.state,
+      'zipCode': instance.zipCode,
+      'country': instance.country,
+      'description': instance.description,
+      'primaryColor': instance.primaryColor,
     };
-
