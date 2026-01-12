@@ -31,6 +31,11 @@ class UserManagementScreen extends ConsumerWidget {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showInviteUserDialog(context, ref),
+        icon: const Icon(Icons.person_add),
+        label: const Text('Invite User'),
+      ),
       body: usersAsync.when(
         data: (users) => users.isEmpty
             ? const Center(
@@ -67,6 +72,102 @@ class UserManagementScreen extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _showInviteUserDialog(
+      BuildContext context, WidgetRef ref) async {
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Invite User'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a name';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter an email';
+                  }
+                  if (!value.contains('@')) {
+                    return 'Please enter a valid email';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Note: User will be created with a temporary password that they must change on first login.',
+                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (formKey.currentState!.validate()) {
+                try {
+                  // For now, show a message that this feature is coming soon
+                  // TODO: Implement user invitation API endpoint
+                  Navigator.pop(context);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'User invitation feature coming soon. Please contact your system administrator to add users.',
+                        ),
+                        backgroundColor: Colors.orange,
+                        duration: Duration(seconds: 4),
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to invite user: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              }
+            },
+            child: const Text('Invite'),
+          ),
+        ],
       ),
     );
   }
@@ -245,77 +346,92 @@ class _UserCard extends ConsumerWidget {
 
   Future<void> _showManageRolesDialog(
       BuildContext context, WidgetRef ref) async {
-    final rolesAsync = ref.read(allRolesProvider);
-
     await showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Manage Roles'),
-        content: rolesAsync.when(
-          data: (allRoles) {
-            return SizedBox(
-              width: double.maxFinite,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: allRoles.length,
-                itemBuilder: (context, index) {
-                  final role = allRoles[index];
-                  final hasRole = user.hasRole(role.name);
+      builder: (dialogContext) => Consumer(
+        builder: (context, ref, child) {
+          final rolesAsync = ref.watch(allRolesProvider);
+          final usersAsync = ref.watch(organizationUsersProvider);
 
-                  return CheckboxListTile(
-                    title: Text(role.name),
-                    subtitle: role.description != null
-                        ? Text(role.description!)
-                        : null,
-                    value: hasRole,
-                    onChanged: (value) async {
-                      try {
-                        final api = ref.read(organizationApiProvider);
-                        if (value == true) {
-                          await api.assignRoleToUser(user.id, role.id);
-                        } else {
-                          await api.removeRoleFromUser(user.id, role.id);
-                        }
+          return AlertDialog(
+            title: const Text('Manage Roles'),
+            content: rolesAsync.when(
+              data: (allRoles) {
+                // Get the latest user data
+                final currentUser = usersAsync.maybeWhen(
+                  data: (users) => users.firstWhere(
+                    (u) => u.id == user.id,
+                    orElse: () => user,
+                  ),
+                  orElse: () => user,
+                );
 
-                        ref.invalidate(organizationUsersProvider);
+                return SizedBox(
+                  width: double.maxFinite,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: allRoles.length,
+                    itemBuilder: (context, index) {
+                      final role = allRoles[index];
+                      final hasRole = currentUser.hasRole(role.name);
 
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                value == true
-                                    ? 'Role assigned successfully'
-                                    : 'Role removed successfully',
-                              ),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Failed to update role: $e'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
+                      return CheckboxListTile(
+                        title: Text(role.name),
+                        subtitle: role.description != null
+                            ? Text(role.description!)
+                            : null,
+                        value: hasRole,
+                        onChanged: (value) async {
+                          try {
+                            final api = ref.read(organizationApiProvider);
+                            if (value == true) {
+                              await api.assignRoleToUser(user.id, role.id);
+                            } else {
+                              await api.removeRoleFromUser(user.id, role.id);
+                            }
+
+                            // Refresh the users list to update the UI
+                            ref.invalidate(organizationUsersProvider);
+
+                            if (dialogContext.mounted) {
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    value == true
+                                        ? 'Role assigned successfully'
+                                        : 'Role removed successfully',
+                                  ),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (dialogContext.mounted) {
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to update role: $e'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      );
                     },
-                  );
-                },
+                  ),
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => Text('Error loading roles: $error'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text('Close'),
               ),
-            );
-          },
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, _) => Text('Error loading roles: $error'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
