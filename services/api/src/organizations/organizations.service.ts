@@ -330,5 +330,20 @@ export class OrganizationsService {
       orderBy: { name: 'asc' },
     });
   }
+
+  async updateLogo(organizationId: string, logoUrl: string) {
+    const organization = await this.prisma.organization.findUnique({
+      where: { id: organizationId },
+    });
+
+    if (!organization) {
+      throw new NotFoundException('Organization not found');
+    }
+
+    return this.prisma.organization.update({
+      where: { id: organizationId },
+      data: { logoUrl: logoUrl },
+    });
+  }
 }
 
