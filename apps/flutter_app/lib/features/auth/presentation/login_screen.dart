@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/constants/app_strings.dart';
-import '../../../core/constants/brand_assets.dart';
+import '../../../shared/widgets/brand_logo.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -98,8 +97,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // CareAccess Logo
-                        SvgPicture.asset(
-                          BrandAssets.lockup,
+                        const BrandLogo.lockup(
                           height: 80,
                         ),
                         const SizedBox(height: 32),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/constants/brand_assets.dart';
 import '../../core/theme/app_theme.dart';
+import 'brand_logo.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -27,13 +27,9 @@ class AppDrawer extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // CareAccess Logo
-                SvgPicture.asset(
-                  BrandAssets.wordmark,
+                const BrandLogo.wordmark(
                   height: 32,
-                  colorFilter: const ColorFilter.mode(
-                    Colors.white,
-                    BlendMode.srcIn,
-                  ),
+                  color: Colors.white,
                 ),
                 const Spacer(),
                 // User Info

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/brand_assets.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/brand_logo.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -27,8 +27,7 @@ class AboutScreen extends StatelessWidget {
               child: Column(
                 children: [
                   // Logo
-                  SvgPicture.asset(
-                    BrandAssets.lockup,
+                  const BrandLogo.lockup(
                     height: 100,
                   ),
                   const SizedBox(height: 24),

@@ -63,9 +63,20 @@ flutter:
   uses-material-design: true
 
   assets:
+    # Light mode logos
     - ../../assets/brand/careaccess_icon.svg
     - ../../assets/brand/careaccess_wordmark.svg
     - ../../assets/brand/careaccess_lockup.svg
+    # Dark mode logos
+    - ../../assets/brand/careaccess_icon_dark.svg
+    - ../../assets/brand/careaccess_wordmark_dark.svg
+    - ../../assets/brand/careaccess_lockup_dark.svg
+    # Favicons
+    - ../../assets/brand/favicon.ico
+    - ../../assets/brand/favicon_16x16.png
+    - ../../assets/brand/favicon_32x32.png
+    - ../../assets/brand/favicon_48x48.png
+    - ../../assets/brand/favicon_64x64.png
 
   # fonts:
   #   - family: Schyler
