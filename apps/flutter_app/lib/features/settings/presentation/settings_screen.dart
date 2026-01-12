@@ -81,6 +81,89 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
 
+              // Security Section
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.security,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Security',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      ListTile(
+                        leading: const Icon(Icons.lock),
+                        title: const Text('Change Password'),
+                        subtitle: const Text('Update your password'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          context.push('/settings/change-password');
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Organization Section
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.business,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Organization',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      ListTile(
+                        leading: const Icon(Icons.info),
+                        title: const Text('Organization Details'),
+                        subtitle:
+                            const Text('View organization info and stats'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          context.push('/settings/organization');
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // App Settings Section
               Card(
                 child: Padding(
@@ -178,4 +261,3 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 }
-

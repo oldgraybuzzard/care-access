@@ -149,5 +149,12 @@ export class UsersService {
     const { passwordHash, ...result } = updated;
     return result;
   }
+
+  async updatePassword(id: string, newPasswordHash: string) {
+    await this.prisma.user.update({
+      where: { id },
+      data: { passwordHash: newPasswordHash },
+    });
+  }
 }
 

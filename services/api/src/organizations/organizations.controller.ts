@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { OrganizationsService } from './organizations.service';
@@ -66,6 +67,40 @@ export class OrganizationsController {
   @ApiOperation({ summary: 'Delete organization (super admin only)' })
   remove(@Param('id') id: string) {
     return this.organizationsService.remove(id);
+  }
+}
+
+// User-facing organization endpoints
+@ApiTags('organizations')
+@Controller('organizations')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+export class UserOrganizationsController {
+  constructor(private readonly organizationsService: OrganizationsService) {}
+
+  @Get('me')
+  @ApiOperation({ summary: 'Get current user\'s organization' })
+  getMyOrganization(@Request() req) {
+    const organizationId = req.user.organizationId;
+    return this.organizationsService.findOne(organizationId);
+  }
+
+  @Get('me/stats')
+  @ApiOperation({ summary: 'Get current user\'s organization statistics' })
+  getMyOrganizationStats(@Request() req) {
+    const organizationId = req.user.organizationId;
+    return this.organizationsService.getStats(organizationId);
+  }
+
+  @Patch('me')
+  @Roles('admin')
+  @ApiOperation({ summary: 'Update current user\'s organization (admin only)' })
+  updateMyOrganization(
+    @Request() req,
+    @Body() updateOrganizationDto: UpdateOrganizationDto,
+  ) {
+    const organizationId = req.user.organizationId;
+    return this.organizationsService.update(organizationId, updateOrganizationDto);
   }
 }
 

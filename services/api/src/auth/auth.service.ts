@@ -104,5 +104,29 @@ export class AuthService {
       return null;
     }
   }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    // Get user with password hash
+    const user = await this.usersService.findById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Verify current password
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    // Hash new password
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    await this.usersService.updatePassword(userId, newPasswordHash);
+
+    return { message: 'Password changed successfully' };
+  }
 }
 
