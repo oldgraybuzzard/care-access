@@ -158,6 +158,15 @@ class SettingsScreen extends ConsumerWidget {
                           context.push('/settings/organization');
                         },
                       ),
+                      ListTile(
+                        leading: const Icon(Icons.people),
+                        title: const Text('User Management'),
+                        subtitle: const Text('Manage users and roles'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          context.push('/settings/users');
+                        },
+                      ),
                     ],
                   ),
                 ),

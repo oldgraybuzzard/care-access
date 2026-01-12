@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/api/organization_api.dart';
 import '../../../core/models/organization.dart';
 import 'package:intl/intl.dart';
@@ -110,6 +111,15 @@ class OrganizationSettingsScreen extends ConsumerWidget {
                   context,
                   'Created',
                   DateFormat('MMM d, yyyy').format(org.createdAt),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () => context.push('/settings/organization/edit'),
+                  icon: const Icon(Icons.edit),
+                  label: const Text('Edit Organization'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                  ),
                 ),
               ],
             ),
@@ -247,4 +257,3 @@ class OrganizationSettingsScreen extends ConsumerWidget {
     );
   }
 }
-
