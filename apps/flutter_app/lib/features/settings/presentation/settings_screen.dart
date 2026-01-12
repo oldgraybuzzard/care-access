@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/widgets/organization_badge.dart';
+import '../../../shared/widgets/app_drawer.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -15,6 +16,7 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Settings'),
       ),
+      drawer: const AppDrawer(),
       body: authState.when(
         data: (state) {
           if (!state.isAuthenticated || state.user == null) {
