@@ -5,9 +5,13 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Seeding children data...');
 
+  // Use the default FCF organization
+  const FCF_ORG_ID = 'fcf-default-org-id';
+
   // Create a family
   const family = await prisma.family.create({
     data: {
+      organizationId: FCF_ORG_ID,
       familyName: 'Johnson Family',
       primaryContact: 'Sarah Johnson',
       phone: '(555) 123-4567',
@@ -33,6 +37,7 @@ async function main() {
   // Create children
   const child1 = await prisma.child.create({
     data: {
+      organizationId: FCF_ORG_ID,
       firstName: 'Emma',
       middleName: 'Grace',
       lastName: 'Johnson',
@@ -88,6 +93,7 @@ async function main() {
 
   const child2 = await prisma.child.create({
     data: {
+      organizationId: FCF_ORG_ID,
       firstName: 'Marcus',
       lastName: 'Thompson',
       nickname: 'Marc',
@@ -136,6 +142,7 @@ async function main() {
   // Create education records for Emma
   const emmaEd1 = await prisma.educationRecord.create({
     data: {
+      organizationId: FCF_ORG_ID,
       childId: child1.id,
       schoolYear: '2023-2024',
       schoolName: 'Springfield Elementary School',
@@ -159,6 +166,7 @@ async function main() {
 
   const emmaEd2 = await prisma.educationRecord.create({
     data: {
+      organizationId: FCF_ORG_ID,
       childId: child1.id,
       schoolYear: '2022-2023',
       schoolName: 'Springfield Elementary School',
@@ -182,6 +190,7 @@ async function main() {
   // Create education records for Marcus
   const marcusEd1 = await prisma.educationRecord.create({
     data: {
+      organizationId: FCF_ORG_ID,
       childId: child2.id,
       schoolYear: '2023-2024',
       schoolName: 'Lincoln Middle School',
@@ -205,6 +214,7 @@ async function main() {
 
   const marcusEd2 = await prisma.educationRecord.create({
     data: {
+      organizationId: FCF_ORG_ID,
       childId: child2.id,
       schoolYear: '2022-2023',
       schoolName: 'Lincoln Middle School',

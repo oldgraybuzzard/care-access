@@ -14,20 +14,72 @@ datasource db {
 // Identity & Security
 // ============================================
 
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique  // URL-friendly identifier (e.g., "fcf", "acme-child-services")
+  domain      String?  @unique  // Custom domain support (optional)
+
+  // Subscription
+  plan        String   @default("trial")  // trial, basic, professional, enterprise
+  status      String   @default("active") // active, suspended, cancelled
+  trialEndsAt DateTime? @map("trial_ends_at")
+
+  // Branding
+  logoUrl     String?  @map("logo_url")
+  primaryColor String? @map("primary_color")
+
+  // Settings (JSON for flexibility)
+  settings    Json?    // Tenant-specific configuration
+
+  // Metadata
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations - all tenant-scoped models
+  users            User[]
+  clients          Client[]
+  children         Child[]
+  families         Family[]
+  programs         Program[]
+  workers          Worker[]
+  cases            Case[]
+  assessments      Assessment[]
+  goals            Goal[]
+  educationRecords EducationRecord[]
+  medicalRecords   MedicalRecord[]
+  incidents        BehavioralIncident[]
+  childNotes       ChildNote[]
+  homeVisits       HomeVisit[]
+  reportDefinitions ReportDefinition[]
+  kpiDaily         KpiDaily[]
+  vendorSources    VendorSource[]
+
+  @@index([slug])
+  @@index([status])
+  @@map("organizations")
+}
+
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  name         String
-  passwordHash String   @map("password_hash")
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(uuid())
+  email          String   @unique
+  name           String
+  passwordHash   String   @map("password_hash")
+  isActive       Boolean  @default(true) @map("is_active")
+
+  // Multi-tenancy
+  organizationId String   @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   roles        UserRole[]
   auditLogs    AuditLog[]
   reportRuns   ReportRun[]
   ownedReports ReportDefinition[]
 
+  @@index([organizationId])
   @@map("users")
 }
 
@@ -75,9 +127,14 @@ model AuditLog {
 // ============================================
 
 model VendorSource {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
+  id             String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId String   @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  name           String
+  createdAt      DateTime @default(now()) @map("created_at")
 
   tokens    VendorToken[]
   clients   Client[]
@@ -86,6 +143,8 @@ model VendorSource {
   services  Service[]
   documents Document[]
 
+  @@unique([organizationId, name])  // Name unique per organization
+  @@index([organizationId])
   @@map("vendor_sources")
 }
 
@@ -109,26 +168,40 @@ model VendorToken {
 // ============================================
 
 model Program {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
+  id             String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId String   @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  name           String
+  createdAt      DateTime @default(now()) @map("created_at")
 
   clients  Client[]
   cases    Case[]
   kpiDaily KpiDaily[]
 
+  @@unique([organizationId, name])  // Program name unique per organization
+  @@index([organizationId])
   @@map("programs")
 }
 
 model Worker {
-  id        String   @id @default(uuid())
-  name      String
-  email     String?  @unique
-  createdAt DateTime @default(now()) @map("created_at")
+  id             String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId String   @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  name           String
+  email          String?
+  createdAt      DateTime @default(now()) @map("created_at")
 
   cases    Case[]
   kpiDaily KpiDaily[]
 
+  @@unique([organizationId, email])  // Email unique per organization (workers can work for multiple orgs)
+  @@index([organizationId])
   @@map("workers")
 }
 
@@ -138,6 +211,11 @@ model Worker {
 
 model Client {
   id              String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId  String   @map("organization_id")
+  organization    Organization @relation(fields: [organizationId], references: [id])
+
   vendorSourceId  String   @map("vendor_source_id")
   vendorClientId  String   @map("vendor_client_id")
   firstName       String   @map("first_name")
@@ -155,13 +233,19 @@ model Client {
   child        Child?       // New child-centered profile
 
   @@unique([vendorSourceId, vendorClientId])
-  @@index([status])
+  @@index([organizationId])
+  @@index([organizationId, status])  // Composite index for common queries
   @@index([programId])
   @@map("clients")
 }
 
 model Case {
   id                String    @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId    String    @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id])
+
   vendorSourceId    String    @map("vendor_source_id")
   vendorCaseId      String    @map("vendor_case_id")
   clientId          String    @map("client_id")
@@ -184,8 +268,9 @@ model Case {
   goals        Goal[]       // Child goals linked to case
 
   @@unique([vendorSourceId, vendorCaseId])
+  @@index([organizationId])
+  @@index([organizationId, status])  // Composite index for common queries
   @@index([clientId])
-  @@index([status])
   @@index([assignedWorkerId])
   @@index([programId])
   @@index([openedAt])
@@ -262,6 +347,11 @@ model Document {
 
 model Child {
   id                String    @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId    String    @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id])
+
   clientId          String?   @unique @map("client_id") // Link to legacy Client if exists
   firstName         String    @map("first_name")
   middleName        String?   @map("middle_name")
@@ -328,7 +418,8 @@ model Child {
   goals             Goal[]
   notes             ChildNote[]
 
-  @@index([status])
+  @@index([organizationId])
+  @@index([organizationId, status])  // Composite index for common queries
   @@index([familyId])
   @@index([dateOfBirth])
   @@map("children")
@@ -336,6 +427,11 @@ model Child {
 
 model Family {
   id                String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId    String   @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id])
+
   familyName        String   @map("family_name")
   primaryContact    String?  @map("primary_contact")
   phone             String?
@@ -365,11 +461,17 @@ model Family {
   children          Child[]
   homeVisits        HomeVisit[]
 
+  @@index([organizationId])
   @@map("families")
 }
 
 model Assessment {
   id                String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId    String   @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id])
+
   childId           String   @map("child_id")
   assessmentType    String   @map("assessment_type") // Intake, Ongoing, Discharge, etc.
   assessmentDate    DateTime @map("assessment_date")
@@ -396,6 +498,7 @@ model Assessment {
   // Relations
   child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
   @@index([childId])
   @@index([assessmentDate])
   @@map("assessments")
@@ -403,6 +506,11 @@ model Assessment {
 
 model EducationRecord {
   id                String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId    String   @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id])
+
   childId           String   @map("child_id")
   schoolYear        String   @map("school_year") // 2023-2024
   schoolName        String   @map("school_name")
@@ -437,6 +545,7 @@ model EducationRecord {
   // Relations
   child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
   @@index([childId])
   @@index([schoolYear])
   @@map("education_records")
@@ -444,6 +553,11 @@ model EducationRecord {
 
 model MedicalRecord {
   id                String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId    String   @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id])
+
   childId           String   @map("child_id")
   recordType        String   @map("record_type") // Checkup, Immunization, Specialist Visit, etc.
   recordDate        DateTime @map("record_date")
@@ -465,6 +579,7 @@ model MedicalRecord {
   // Relations
   child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
   @@index([childId])
   @@index([recordDate])
   @@map("medical_records")
@@ -472,6 +587,11 @@ model MedicalRecord {
 
 model BehavioralIncident {
   id                String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId    String   @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id])
+
   childId           String   @map("child_id")
   incidentDate      DateTime @map("incident_date")
   incidentType      String   @map("incident_type") // Aggression, Self-harm, Elopement, etc.
@@ -501,6 +621,7 @@ model BehavioralIncident {
   // Relations
   child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
   @@index([childId])
   @@index([incidentDate])
   @@index([severity])
@@ -509,6 +630,11 @@ model BehavioralIncident {
 
 model Goal {
   id                String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId    String   @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id])
+
   childId           String   @map("child_id")
   caseId            String?  @map("case_id") // Link to case if applicable
   goalCategory      String   @map("goal_category") // Safety, Behavioral, Educational, Family, Life Skills
@@ -538,6 +664,7 @@ model Goal {
   case              Case?    @relation(fields: [caseId], references: [id])
   progressNotes     GoalProgress[]
 
+  @@index([organizationId])
   @@index([childId])
   @@index([caseId])
   @@index([status])
@@ -565,6 +692,11 @@ model GoalProgress {
 
 model ChildNote {
   id                String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId    String   @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id])
+
   childId           String   @map("child_id")
   noteDate          DateTime @map("note_date")
   noteType          String   @map("note_type") // Progress, Contact, Observation, etc.
@@ -582,6 +714,7 @@ model ChildNote {
   // Relations
   child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
   @@index([childId])
   @@index([noteDate])
   @@index([noteType])
@@ -590,6 +723,11 @@ model ChildNote {
 
 model HomeVisit {
   id                String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId    String   @map("organization_id")
+  organization      Organization @relation(fields: [organizationId], references: [id])
+
   familyId          String   @map("family_id")
   visitDate         DateTime @map("visit_date")
   visitType         String   @map("visit_type") // Scheduled, Unannounced, Emergency
@@ -614,6 +752,7 @@ model HomeVisit {
   // Relations
   family            Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
 
+  @@index([organizationId])
   @@index([familyId])
   @@index([visitDate])
   @@map("home_visits")
@@ -625,6 +764,11 @@ model HomeVisit {
 
 model ReportDefinition {
   id             String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId String   @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
   name           String
   type           String   // 'standard' | 'custom'
   ownerUserId    String?  @map("owner_user_id")
@@ -636,6 +780,7 @@ model ReportDefinition {
   owner User?       @relation(fields: [ownerUserId], references: [id], onDelete: SetNull)
   runs  ReportRun[]
 
+  @@index([organizationId])
   @@index([type])
   @@index([ownerUserId])
   @@map("report_definitions")
@@ -665,20 +810,26 @@ model ReportRun {
 // ============================================
 
 model KpiDaily {
-  id            String   @id @default(uuid())
-  programId     String?  @map("program_id")
-  workerId      String?  @map("worker_id")
-  date          DateTime @db.Date
-  activeCases   Int      @default(0) @map("active_cases")
-  intakes       Int      @default(0)
-  closures      Int      @default(0)
-  overdueCount  Int      @default(0) @map("overdue_count")
-  createdAt     DateTime @default(now()) @map("created_at")
+  id             String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId String   @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  programId      String?  @map("program_id")
+  workerId       String?  @map("worker_id")
+  date           DateTime @db.Date
+  activeCases    Int      @default(0) @map("active_cases")
+  intakes        Int      @default(0)
+  closures       Int      @default(0)
+  overdueCount   Int      @default(0) @map("overdue_count")
+  createdAt      DateTime @default(now()) @map("created_at")
 
   program Program? @relation(fields: [programId], references: [id])
   worker  Worker?  @relation(fields: [workerId], references: [id])
 
-  @@unique([date, programId, workerId])
+  @@unique([organizationId, date, programId, workerId])  // Org-scoped unique constraint
+  @@index([organizationId])
   @@index([date])
   @@index([programId])
   @@index([workerId])

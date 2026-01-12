@@ -43,7 +43,7 @@ class _CustomReportBuilderScreenState
           dataset: state.dataset!,
           filters: state.filters,
           groupBy: state.groupBy,
-        )).future,
+        ),).future,
       );
 
       if (mounted) {
@@ -144,7 +144,7 @@ class _CustomReportBuilderScreenState
                       const Text(
                         '2. Add Filters (Optional)',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                            fontSize: 18, fontWeight: FontWeight.bold,),
                       ),
                       if (state.filters.isNotEmpty)
                         TextButton(
@@ -199,7 +199,7 @@ class _CustomReportBuilderScreenState
             border: OutlineInputBorder(),
             prefixIcon: Icon(Icons.filter_list),
           ),
-          value: state.filters['status'] as String?,
+          initialValue: state.filters['status'] as String?,
           items: const [
             DropdownMenuItem(value: null, child: Text('All Statuses')),
             DropdownMenuItem(value: 'active', child: Text('Active')),

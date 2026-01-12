@@ -110,16 +110,16 @@ class ReportResultsScreen extends ConsumerWidget {
                   col.toString().toUpperCase(),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-              ))
+              ),)
           .toList(),
       rows: result.data
           .map((row) => DataRow(
                 cells: columns
                     .map((col) => DataCell(
                           Text(row[col]?.toString() ?? 'N/A'),
-                        ))
+                        ),)
                     .toList(),
-              ))
+              ),)
           .toList(),
     );
   }
@@ -154,7 +154,7 @@ class ReportResultsScreen extends ConsumerWidget {
   }
 
   Future<void> _exportReport(
-      BuildContext context, WidgetRef ref, String format) async {
+      BuildContext context, WidgetRef ref, String format,) async {
     try {
       final api = ref.read(reportsApiProvider);
       final response = await api.exportReport(

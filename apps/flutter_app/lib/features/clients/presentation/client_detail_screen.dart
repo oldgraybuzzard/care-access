@@ -59,7 +59,7 @@ class ClientDetailScreen extends ConsumerWidget {
             if (client.age != null) _buildInfoRow('Age', '${client.age} years'),
             if (client.dob != null)
               _buildInfoRow('Date of Birth',
-                  DateFormat('MMM d, yyyy').format(client.dob!)),
+                  DateFormat('MMM d, yyyy').format(client.dob!),),
             _buildInfoRow('Status', client.status, statusBadge: true),
             if (client.vendorClientId.isNotEmpty)
               _buildInfoRow('Vendor Client ID', client.vendorClientId),
@@ -211,21 +211,21 @@ class ClientDetailScreen extends ConsumerWidget {
 
   Widget _buildCasesSection(BuildContext context, ClientDetail client) {
     if (client.cases.isEmpty) {
-      return Card(
+      return const Card(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Cases',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const Divider(),
-              const Center(
+              Divider(),
+              Center(
                 child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text('No cases found'),

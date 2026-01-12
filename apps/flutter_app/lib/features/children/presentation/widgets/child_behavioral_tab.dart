@@ -1,20 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/child.dart';
+import 'quick_edit_dialogs.dart';
 
-class ChildBehavioralTab extends StatelessWidget {
+class ChildBehavioralTab extends ConsumerWidget {
   final Child child;
+  final VoidCallback? onUpdate;
 
   const ChildBehavioralTab({
     super.key,
     required this.child,
+    this.onUpdate,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListView(
       primary: false,
       padding: const EdgeInsets.all(16),
       children: [
+        // Quick Edit Button
+        Align(
+          alignment: Alignment.centerRight,
+          child: FilledButton.tonalIcon(
+            onPressed: () async {
+              final result = await showDialog<bool>(
+                context: context,
+                builder: (context) => QuickEditBehavioralDialog(child: child),
+              );
+              if (result == true && onUpdate != null) {
+                onUpdate!();
+              }
+            },
+            icon: const Icon(Icons.edit, size: 18),
+            label: const Text('Quick Edit Behavioral'),
+          ),
+        ),
+        const SizedBox(height: 16),
+
         // Trauma History
         if (child.traumaHistory != null) ...[
           Card(
@@ -26,7 +49,7 @@ class ChildBehavioralTab extends StatelessWidget {
                   Row(
                     children: [
                       Icon(Icons.history,
-                          color: Theme.of(context).colorScheme.primary),
+                          color: Theme.of(context).colorScheme.primary,),
                       const SizedBox(width: 8),
                       const Text(
                         'Trauma History',
@@ -60,7 +83,7 @@ class ChildBehavioralTab extends StatelessWidget {
                   Row(
                     children: [
                       Icon(Icons.favorite,
-                          color: Theme.of(context).colorScheme.primary),
+                          color: Theme.of(context).colorScheme.primary,),
                       const SizedBox(width: 8),
                       const Text(
                         'Attachment Style',

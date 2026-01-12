@@ -156,7 +156,7 @@ class _ChildrenListScreenState extends ConsumerState<ChildrenListScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.error_outline,
-                        size: 48, color: Colors.red),
+                        size: 48, color: Colors.red,),
                     const SizedBox(height: 16),
                     Text('Error: $error'),
                     const SizedBox(height: 16),

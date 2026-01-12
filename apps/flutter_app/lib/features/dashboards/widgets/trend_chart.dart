@@ -117,7 +117,7 @@ class TrendChart extends StatelessWidget {
                           .map((e) => FlSpot(
                                 e.key.toDouble(),
                                 e.value.count.toDouble(),
-                              ))
+                              ),)
                           .toList(),
                       isCurved: true,
                       color: lineColor,

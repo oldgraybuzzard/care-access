@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/api/children_api.dart';
 import '../../../core/models/child.dart';
 import '../../../core/widgets/delete_confirmation_dialog.dart';
+import 'child_edit_screen.dart';
 import 'widgets/child_header.dart';
 import 'widgets/child_overview_tab.dart';
 import 'widgets/child_medical_tab.dart';
@@ -54,7 +55,7 @@ class ChildProfileScreen extends ConsumerWidget {
   }
 
   Future<void> _handleDelete(
-      BuildContext context, WidgetRef ref, Child child) async {
+      BuildContext context, WidgetRef ref, Child child,) async {
     final confirmed = await DeleteConfirmationDialog.show(
       context: context,
       title: 'Delete Child',
@@ -102,8 +103,11 @@ class ChildProfileScreen extends ConsumerWidget {
                 IconButton(
                   icon: const Icon(Icons.edit),
                   onPressed: () async {
-                    final result =
-                        await context.push('/children/$childId/edit');
+                    final result = await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => ChildEditScreen(child: child),
+                      ),
+                    );
                     if (result == true && context.mounted) {
                       // Refresh the profile
                       ref.invalidate(childProfileProvider(childId));
@@ -124,7 +128,7 @@ class ChildProfileScreen extends ConsumerWidget {
                           Icon(Icons.delete, color: Colors.red),
                           SizedBox(width: 8),
                           Text('Delete Child',
-                              style: TextStyle(color: Colors.red)),
+                              style: TextStyle(color: Colors.red),),
                         ],
                       ),
                     ),
@@ -156,9 +160,15 @@ class ChildProfileScreen extends ConsumerWidget {
         body: TabBarView(
           children: [
             ChildOverviewTab(child: child),
-            ChildMedicalTab(child: child),
+            ChildMedicalTab(
+              child: child,
+              onUpdate: () => ref.invalidate(childProfileProvider(childId)),
+            ),
             ChildEducationTab(child: child),
-            ChildBehavioralTab(child: child),
+            ChildBehavioralTab(
+              child: child,
+              onUpdate: () => ref.invalidate(childProfileProvider(childId)),
+            ),
             ChildFamilyTab(child: child),
             ChildGoalsTab(child: child),
           ],
@@ -181,7 +191,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+      BuildContext context, double shrinkOffset, bool overlapsContent,) {
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: _tabBar,

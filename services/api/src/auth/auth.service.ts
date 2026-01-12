@@ -36,15 +36,16 @@ export class AuthService {
 
   async login(loginDto: LoginDto) {
     const user = await this.validateUser(loginDto.email, loginDto.password);
-    
+
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { 
-      sub: user.id, 
+    const payload = {
+      sub: user.id,
       email: user.email,
       roles: user.roles?.map(ur => ur.role.name) || [],
+      organizationId: user.organizationId,
     };
 
     const accessToken = this.jwtService.sign(payload);
@@ -61,6 +62,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         roles: user.roles?.map(ur => ur.role.name) || [],
+        organizationId: user.organizationId,
       },
     };
   }
@@ -77,10 +79,11 @@ export class AuthService {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      const newPayload = { 
-        sub: user.id, 
+      const newPayload = {
+        sub: user.id,
         email: user.email,
         roles: user.roles?.map(ur => ur.role.name) || [],
+        organizationId: user.organizationId,
       };
 
       const accessToken = this.jwtService.sign(newPayload);

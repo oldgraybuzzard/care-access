@@ -1,20 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/child.dart';
+import 'quick_edit_dialogs.dart';
 
-class ChildMedicalTab extends StatelessWidget {
+class ChildMedicalTab extends ConsumerWidget {
   final Child child;
+  final VoidCallback? onUpdate;
 
   const ChildMedicalTab({
     super.key,
     required this.child,
+    this.onUpdate,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListView(
       primary: false,
       padding: const EdgeInsets.all(16),
       children: [
+        // Quick Edit Button
+        Align(
+          alignment: Alignment.centerRight,
+          child: FilledButton.tonalIcon(
+            onPressed: () async {
+              final result = await showDialog<bool>(
+                context: context,
+                builder: (context) => QuickEditMedicalDialog(child: child),
+              );
+              if (result == true && onUpdate != null) {
+                onUpdate!();
+              }
+            },
+            icon: const Icon(Icons.edit, size: 18),
+            label: const Text('Quick Edit Medical'),
+          ),
+        ),
+        const SizedBox(height: 16),
+
         // Medications
         if (child.medications != null && child.medications!.isNotEmpty) ...[
           _buildSection(
@@ -72,7 +95,7 @@ class ChildMedicalTab extends StatelessWidget {
                 Row(
                   children: [
                     Icon(Icons.badge,
-                        color: Theme.of(context).colorScheme.primary),
+                        color: Theme.of(context).colorScheme.primary,),
                     const SizedBox(width: 8),
                     const Text(
                       'Medical Identifiers',
@@ -88,7 +111,7 @@ class ChildMedicalTab extends StatelessWidget {
                   _buildInfoRow('Medicaid ID', child.medicaidId!),
                 if (child.ssn != null)
                   _buildInfoRow('SSN',
-                      '***-**-${child.ssn!.substring(child.ssn!.length - 4)}'),
+                      '***-**-${child.ssn!.substring(child.ssn!.length - 4)}',),
               ],
             ),
           ),
@@ -113,7 +136,7 @@ class ChildMedicalTab extends StatelessWidget {
             Row(
               children: [
                 Icon(icon,
-                    color: color ?? Theme.of(context).colorScheme.primary),
+                    color: color ?? Theme.of(context).colorScheme.primary,),
                 const SizedBox(width: 8),
                 Text(
                   title,
@@ -139,7 +162,7 @@ class ChildMedicalTab extends StatelessWidget {
                       ),
                     ],
                   ),
-                )),
+                ),),
           ],
         ),
       ),

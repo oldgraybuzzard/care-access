@@ -55,7 +55,7 @@ class ReportsScreen extends ConsumerWidget {
                   description: def.description ?? 'Run ${def.name}',
                   icon: _getIconForReport(def.name),
                   onTap: () => _runStandardReport(context, ref, def),
-                )),
+                ),),
           ],
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -118,7 +118,7 @@ class ReportsScreen extends ConsumerWidget {
         runStandardReportProvider((
           reportDefinitionId: def.id,
           filters: null,
-        )).future,
+        ),).future,
       );
 
       if (context.mounted) {

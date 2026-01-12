@@ -178,7 +178,7 @@ class _EducationRecordCard extends StatelessWidget {
                             .map((activity) => Chip(
                                   label: Text(activity.toString()),
                                   backgroundColor: Colors.green.shade50,
-                                ))
+                                ),)
                             .toList(),
                       ),
                     ],

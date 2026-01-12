@@ -6,6 +6,23 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seed...');
 
+  // Create the default FCF organization
+  const FCF_ORG_ID = 'fcf-default-org-id';
+
+  const organization = await prisma.organization.upsert({
+    where: { id: FCF_ORG_ID },
+    update: {},
+    create: {
+      id: FCF_ORG_ID,
+      name: 'Foster Care Foundation',
+      slug: 'fcf',
+      plan: 'enterprise',
+      status: 'active',
+    },
+  });
+
+  console.log('✅ Organization created');
+
   // Create roles
   const adminRole = await prisma.role.upsert({
     where: { name: 'admin' },
@@ -42,6 +59,7 @@ async function main() {
     where: { email: 'admin@fcf.org' },
     update: {},
     create: {
+      organizationId: FCF_ORG_ID,
       email: 'admin@fcf.org',
       name: 'Admin User',
       passwordHash: adminPasswordHash,
@@ -67,9 +85,15 @@ async function main() {
 
   // Create vendor source
   const vendorSource = await prisma.vendorSource.upsert({
-    where: { name: 'extendedreach' },
+    where: {
+      organizationId_name: {
+        organizationId: FCF_ORG_ID,
+        name: 'extendedreach'
+      }
+    },
     update: {},
     create: {
+      organizationId: FCF_ORG_ID,
       name: 'extendedreach',
     },
   });
@@ -79,19 +103,43 @@ async function main() {
   // Create programs
   const programs = await Promise.all([
     prisma.program.upsert({
-      where: { name: 'Foster Care' },
+      where: {
+        organizationId_name: {
+          organizationId: FCF_ORG_ID,
+          name: 'Foster Care'
+        }
+      },
       update: {},
-      create: { name: 'Foster Care' },
+      create: {
+        organizationId: FCF_ORG_ID,
+        name: 'Foster Care'
+      },
     }),
     prisma.program.upsert({
-      where: { name: 'Adoption Services' },
+      where: {
+        organizationId_name: {
+          organizationId: FCF_ORG_ID,
+          name: 'Adoption Services'
+        }
+      },
       update: {},
-      create: { name: 'Adoption Services' },
+      create: {
+        organizationId: FCF_ORG_ID,
+        name: 'Adoption Services'
+      },
     }),
     prisma.program.upsert({
-      where: { name: 'Family Support' },
+      where: {
+        organizationId_name: {
+          organizationId: FCF_ORG_ID,
+          name: 'Family Support'
+        }
+      },
       update: {},
-      create: { name: 'Family Support' },
+      create: {
+        organizationId: FCF_ORG_ID,
+        name: 'Family Support'
+      },
     }),
   ]);
 
@@ -100,17 +148,29 @@ async function main() {
   // Create workers
   const workers = await Promise.all([
     prisma.worker.upsert({
-      where: { email: 'john.smith@fcf.org' },
+      where: {
+        organizationId_email: {
+          organizationId: FCF_ORG_ID,
+          email: 'john.smith@fcf.org'
+        }
+      },
       update: {},
       create: {
+        organizationId: FCF_ORG_ID,
         name: 'John Smith',
         email: 'john.smith@fcf.org',
       },
     }),
     prisma.worker.upsert({
-      where: { email: 'jane.doe@fcf.org' },
+      where: {
+        organizationId_email: {
+          organizationId: FCF_ORG_ID,
+          email: 'jane.doe@fcf.org'
+        }
+      },
       update: {},
       create: {
+        organizationId: FCF_ORG_ID,
         name: 'Jane Doe',
         email: 'jane.doe@fcf.org',
       },
@@ -126,6 +186,7 @@ async function main() {
       update: {},
       create: {
         id: 'caseload-by-worker',
+        organizationId: FCF_ORG_ID,
         name: 'Caseload by Worker',
         type: 'standard',
         definitionJson: {
@@ -139,6 +200,7 @@ async function main() {
       update: {},
       create: {
         id: 'active-cases-by-program',
+        organizationId: FCF_ORG_ID,
         name: 'Active Cases by Program/Status',
         type: 'standard',
         definitionJson: {
@@ -152,6 +214,7 @@ async function main() {
       update: {},
       create: {
         id: 'intakes-vs-closures',
+        organizationId: FCF_ORG_ID,
         name: 'Intakes vs Closures Trend',
         type: 'standard',
         definitionJson: {
@@ -165,6 +228,7 @@ async function main() {
       update: {},
       create: {
         id: 'overdue-compliance',
+        organizationId: FCF_ORG_ID,
         name: 'Overdue/Compliance List',
         type: 'standard',
         definitionJson: {
@@ -178,6 +242,7 @@ async function main() {
       update: {},
       create: {
         id: 'services-delivered',
+        organizationId: FCF_ORG_ID,
         name: 'Services Delivered by Period',
         type: 'standard',
         definitionJson: {

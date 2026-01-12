@@ -42,7 +42,7 @@ class ChildFamilyTab extends StatelessWidget {
                 Row(
                   children: [
                     Icon(Icons.home,
-                        color: Theme.of(context).colorScheme.primary),
+                        color: Theme.of(context).colorScheme.primary,),
                     const SizedBox(width: 8),
                     Text(
                       family.familyName,

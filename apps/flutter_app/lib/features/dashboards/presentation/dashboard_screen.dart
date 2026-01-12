@@ -204,7 +204,7 @@ class DashboardScreen extends ConsumerWidget {
           icon: Icons.web,
           color: Colors.purple,
         ),
-        DetailItem(
+        const DetailItem(
           label: 'Average Processing Time',
           value: '2.5 days',
           icon: Icons.timer,

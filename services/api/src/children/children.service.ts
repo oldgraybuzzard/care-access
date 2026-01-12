@@ -23,6 +23,7 @@ export class ChildrenService {
       ...rest 
     } = createChildDto;
 
+    // organizationId is automatically injected by Prisma middleware
     return this.prisma.child.create({
       data: {
         ...rest,
@@ -38,7 +39,7 @@ export class ChildrenService {
         likes: likes || [],
         dislikes: dislikes || [],
         fears: fears || [],
-      },
+      } as any,
       include: {
         family: true,
         client: true,

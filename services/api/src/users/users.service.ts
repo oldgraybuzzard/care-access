@@ -18,13 +18,14 @@ export class UsersService {
 
     const passwordHash = await bcrypt.hash(createUserDto.password, 10);
 
+    // organizationId is automatically injected by Prisma middleware
     const user = await this.prisma.user.create({
       data: {
         email: createUserDto.email,
         name: createUserDto.name,
         passwordHash,
         isActive: true,
-      },
+      } as any,
       include: {
         roles: {
           include: {

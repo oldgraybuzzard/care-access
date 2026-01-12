@@ -98,10 +98,10 @@ class DashboardService {
     } else if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout) {
       return Exception(
-          'Connection timeout. Please check your internet connection.');
+          'Connection timeout. Please check your internet connection.',);
     } else if (error.type == DioExceptionType.connectionError) {
       return Exception(
-          'Connection error. Please check your internet connection.');
+          'Connection error. Please check your internet connection.',);
     } else {
       return Exception('An unexpected error occurred: ${error.message}');
     }

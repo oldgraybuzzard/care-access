@@ -354,7 +354,7 @@ class _ChildIntakeScreenState extends ConsumerState<ChildIntakeScreen> {
           ),
           const SizedBox(height: 16),
           DropdownButtonFormField<String>(
-            value: _gender,
+            initialValue: _gender,
             decoration: const InputDecoration(
               labelText: 'Gender *',
               border: OutlineInputBorder(),
@@ -363,7 +363,7 @@ class _ChildIntakeScreenState extends ConsumerState<ChildIntakeScreen> {
                 .map((gender) => DropdownMenuItem(
                       value: gender,
                       child: Text(gender),
-                    ))
+                    ),)
                 .toList(),
             onChanged: (value) {
               if (value != null) {
@@ -439,7 +439,7 @@ class _ChildIntakeScreenState extends ConsumerState<ChildIntakeScreen> {
       content: Column(
         children: [
           DropdownButtonFormField<String>(
-            value: _status,
+            initialValue: _status,
             decoration: const InputDecoration(
               labelText: 'Status',
               border: OutlineInputBorder(),
@@ -448,7 +448,7 @@ class _ChildIntakeScreenState extends ConsumerState<ChildIntakeScreen> {
                 .map((status) => DropdownMenuItem(
                       value: status,
                       child: Text(status),
-                    ))
+                    ),)
                 .toList(),
             onChanged: (value) {
               if (value != null) {

@@ -67,7 +67,7 @@ class _TimelineFiltersState extends State<TimelineFilters> {
                 // Type Filter
                 Expanded(
                   child: DropdownButtonFormField<String?>(
-                    value: _selectedType,
+                    initialValue: _selectedType,
                     decoration: const InputDecoration(
                       labelText: 'Type',
                       border: OutlineInputBorder(),

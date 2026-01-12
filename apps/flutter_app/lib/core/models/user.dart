@@ -3,12 +3,14 @@ class User {
   final String email;
   final String name;
   final List<String> roles;
+  final String organizationId;
 
   User({
     required this.id,
     required this.email,
     required this.name,
     required this.roles,
+    required this.organizationId,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -17,6 +19,7 @@ class User {
       email: json['email'],
       name: json['name'],
       roles: List<String>.from(json['roles'] ?? []),
+      organizationId: json['organizationId'] ?? '',
     );
   }
 
@@ -26,7 +29,7 @@ class User {
       'email': email,
       'name': name,
       'roles': roles,
+      'organizationId': organizationId,
     };
   }
 }
-

@@ -17,11 +17,12 @@ export class EducationRecordsService {
       throw new NotFoundException(`Child with ID ${childId} not found`);
     }
 
+    // organizationId is automatically injected by Prisma middleware
     return this.prisma.educationRecord.create({
       data: {
         childId,
         ...createEducationRecordDto,
-      },
+      } as any,
     });
   }
 

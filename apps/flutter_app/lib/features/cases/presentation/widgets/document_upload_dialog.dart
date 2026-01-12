@@ -124,7 +124,7 @@ class _DocumentUploadDialogState extends State<DocumentUploadDialog> {
               icon: const Icon(Icons.attach_file),
               label: Text(_selectedFile == null
                   ? 'Select File'
-                  : 'File: ${_selectedFile!.path.split('/').last}'),
+                  : 'File: ${_selectedFile!.path.split('/').last}',),
             ),
             const SizedBox(height: 16),
 
@@ -142,7 +142,7 @@ class _DocumentUploadDialogState extends State<DocumentUploadDialog> {
 
             // Document Type Dropdown
             DropdownButtonFormField<String>(
-              value: _selectedDocType,
+              initialValue: _selectedDocType,
               decoration: const InputDecoration(
                 labelText: 'Document Type',
                 border: OutlineInputBorder(),

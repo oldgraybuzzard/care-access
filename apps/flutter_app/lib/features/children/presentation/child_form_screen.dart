@@ -175,7 +175,7 @@ class _ChildFormScreenState extends ConsumerState<ChildFormScreen> {
           SnackBar(
               content: Text(widget.childId != null
                   ? 'Child updated successfully'
-                  : 'Child created successfully')),
+                  : 'Child created successfully',),),
         );
         context.pop(true); // Return true to indicate success
       }
@@ -184,7 +184,7 @@ class _ChildFormScreenState extends ConsumerState<ChildFormScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text('Error saving child: $e'),
-              backgroundColor: Colors.red),
+              backgroundColor: Colors.red,),
         );
       }
     } finally {
@@ -288,7 +288,7 @@ class _ChildFormScreenState extends ConsumerState<ChildFormScreen> {
 
                   // Gender
                   DropdownButtonFormField<String>(
-                    value: _gender,
+                    initialValue: _gender,
                     decoration: const InputDecoration(
                       labelText: 'Gender *',
                       border: OutlineInputBorder(),
@@ -297,7 +297,7 @@ class _ChildFormScreenState extends ConsumerState<ChildFormScreen> {
                         .map((gender) => DropdownMenuItem(
                               value: gender,
                               child: Text(gender),
-                            ))
+                            ),)
                         .toList(),
                     onChanged: (value) {
                       if (value != null) {
@@ -330,7 +330,7 @@ class _ChildFormScreenState extends ConsumerState<ChildFormScreen> {
                   const SizedBox(height: 16),
 
                   DropdownButtonFormField<String>(
-                    value: _status,
+                    initialValue: _status,
                     decoration: const InputDecoration(
                       labelText: 'Status',
                       border: OutlineInputBorder(),
@@ -339,7 +339,7 @@ class _ChildFormScreenState extends ConsumerState<ChildFormScreen> {
                         .map((status) => DropdownMenuItem(
                               value: status,
                               child: Text(status),
-                            ))
+                            ),)
                         .toList(),
                     onChanged: (value) {
                       if (value != null) {
@@ -416,7 +416,7 @@ class _ChildFormScreenState extends ConsumerState<ChildFormScreen> {
                           )
                         : Text(widget.childId != null
                             ? 'Update Child'
-                            : 'Create Child'),
+                            : 'Create Child',),
                   ),
                 ],
               ),

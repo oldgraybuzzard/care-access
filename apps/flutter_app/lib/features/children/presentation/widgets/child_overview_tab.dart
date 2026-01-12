@@ -85,7 +85,7 @@ class ChildOverviewTab extends StatelessWidget {
             Icons.psychology,
             [
               _buildChipList(
-                  'Strategies', child.copingMechanisms!, Colors.teal),
+                  'Strategies', child.copingMechanisms!, Colors.teal,),
             ],
           ),
           const SizedBox(height: 16),
@@ -99,7 +99,7 @@ class ChildOverviewTab extends StatelessWidget {
           [
             _buildInfoRow('Full Name', child.fullName),
             _buildInfoRow('Date of Birth',
-                DateFormat('MMMM d, yyyy').format(child.dateOfBirth)),
+                DateFormat('MMMM d, yyyy').format(child.dateOfBirth),),
             _buildInfoRow('Age', '${child.age} years old'),
             _buildInfoRow('Gender', child.gender),
             if (child.raceEthnicity != null)
@@ -149,7 +149,7 @@ class ChildOverviewTab extends StatelessWidget {
   }
 
   Widget _buildStatItem(
-      BuildContext context, IconData icon, String value, String label) {
+      BuildContext context, IconData icon, String value, String label,) {
     return Column(
       children: [
         Icon(icon, color: Theme.of(context).colorScheme.primary),
@@ -173,7 +173,7 @@ class ChildOverviewTab extends StatelessWidget {
   }
 
   Widget _buildSection(BuildContext context, String title, IconData icon,
-      List<Widget> children) {
+      List<Widget> children,) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),

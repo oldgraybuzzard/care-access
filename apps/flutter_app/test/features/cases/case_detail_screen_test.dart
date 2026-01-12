@@ -40,7 +40,7 @@ void main() {
               ),
             ),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: CaseDetailScreen(caseId: 'case-123'),
           ),
         ),
@@ -76,7 +76,7 @@ void main() {
               }),
             ),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: CaseDetailScreen(caseId: 'case-123'),
           ),
         ),
@@ -100,7 +100,7 @@ void main() {
               (ref) => Future.error('Failed to load case'),
             ),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: CaseDetailScreen(caseId: 'case-123'),
           ),
         ),
@@ -109,7 +109,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Error loading case: Failed to load case'),
-          findsOneWidget);
+          findsOneWidget,);
       expect(find.text('Retry'), findsOneWidget);
     });
 
@@ -139,7 +139,7 @@ void main() {
               }),
             ),
           ],
-          child: MaterialApp(
+          child: const MaterialApp(
             home: CaseDetailScreen(caseId: 'case-123'),
           ),
         ),

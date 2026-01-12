@@ -122,7 +122,7 @@ class _ActivityCreateDialogState extends State<ActivityCreateDialog> {
           children: [
             // Activity Type Dropdown
             DropdownButtonFormField<String>(
-              value: _selectedActivityType,
+              initialValue: _selectedActivityType,
               decoration: const InputDecoration(
                 labelText: 'Activity Type',
                 border: OutlineInputBorder(),

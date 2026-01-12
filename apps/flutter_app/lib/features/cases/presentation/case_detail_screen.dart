@@ -678,7 +678,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
                           Text(
                             'Updated: ${DateFormat('MMM d, yyyy').format(doc.updatedAt)}',
                             style: TextStyle(
-                                fontSize: 12, color: Colors.grey[600]),
+                                fontSize: 12, color: Colors.grey[600],),
                           ),
                         ],
                       ),
@@ -767,7 +767,7 @@ class _CaseDetailScreenState extends ConsumerState<CaseDetailScreen>
   }
 
   Future<void> _createActivity(
-      String activityType, DateTime occurredAt, String? summary) async {
+      String activityType, DateTime occurredAt, String? summary,) async {
     final casesApi = ref.read(casesApiProvider);
     await casesApi.createActivity(
       widget.caseId,
