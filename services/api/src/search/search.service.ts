@@ -19,11 +19,10 @@ export class SearchService {
     const limit = filters.limit || 20;
     const skip = (page - 1) * limit;
 
-    const where: any = {};
-
-    // Text search across client names and case IDs
+    // Build where clause for clients
+    const clientWhere: any = {};
     if (filters.q) {
-      where.OR = [
+      clientWhere.OR = [
         {
           firstName: {
             contains: filters.q,
@@ -38,15 +37,33 @@ export class SearchService {
         },
       ];
     }
-
-    // Filter by program
     if (filters.program) {
-      where.programId = filters.program;
+      clientWhere.programId = filters.program;
+    }
+    if (filters.status) {
+      clientWhere.status = filters.status;
     }
 
-    // Filter by status
+    // Build where clause for children
+    const childWhere: any = {};
+    if (filters.q) {
+      childWhere.OR = [
+        {
+          firstName: {
+            contains: filters.q,
+            mode: 'insensitive',
+          },
+        },
+        {
+          lastName: {
+            contains: filters.q,
+            mode: 'insensitive',
+          },
+        },
+      ];
+    }
     if (filters.status) {
-      where.status = filters.status;
+      childWhere.status = filters.status;
     }
 
     // Filter by worker (through cases)
@@ -55,9 +72,10 @@ export class SearchService {
       caseWhere.assignedWorkerId = filters.worker;
     }
 
-    const [clients, total] = await Promise.all([
+    // Search both clients and children in parallel
+    const [clients, clientTotal, children, childTotal] = await Promise.all([
       this.prisma.client.findMany({
-        where,
+        where: clientWhere,
         include: {
           program: true,
           cases: {
@@ -82,16 +100,65 @@ export class SearchService {
         skip,
         take: limit,
       }),
-      this.prisma.client.count({ where }),
+      this.prisma.client.count({ where: clientWhere }),
+      this.prisma.child.findMany({
+        where: childWhere,
+        include: {
+          family: true,
+        },
+        orderBy: [
+          {
+            lastName: 'asc',
+          },
+          {
+            firstName: 'asc',
+          },
+        ],
+        skip,
+        take: limit,
+      }),
+      this.prisma.child.count({ where: childWhere }),
     ]);
 
+    // Transform children to match client format for unified response
+    const transformedChildren = children.map((child) => ({
+      id: child.id,
+      firstName: child.firstName,
+      lastName: child.lastName,
+      dob: child.dateOfBirth,
+      status: child.status,
+      programId: null,
+      program: null,
+      cases: [],
+      // Add a flag to identify this as a child record
+      _type: 'child',
+      _childData: {
+        middleName: child.middleName,
+        nickname: child.nickname,
+        gender: child.gender,
+        familyId: child.familyId,
+        family: child.family,
+      },
+    }));
+
+    // Combine and sort results
+    const combinedResults = [...clients, ...transformedChildren].sort((a, b) => {
+      const lastNameCompare = a.lastName.localeCompare(b.lastName);
+      if (lastNameCompare !== 0) return lastNameCompare;
+      return a.firstName.localeCompare(b.firstName);
+    });
+
+    const total = clientTotal + childTotal;
+
     return {
-      data: clients,
+      data: combinedResults,
       meta: {
         total,
         page,
         limit,
         totalPages: Math.ceil(total / limit),
+        clientCount: clientTotal,
+        childCount: childTotal,
       },
     };
   }

@@ -196,18 +196,49 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   Widget _buildResults(SearchResponse response) {
+    final clientCount = response.meta.clientCount ?? 0;
+    final childCount = response.meta.childCount ?? 0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Results count
+        // Results count with breakdown
         Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
-          child: Text(
-            '${response.meta.total} result${response.meta.total == 1 ? '' : 's'} found',
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Colors.grey[700],
-                  fontWeight: FontWeight.w500,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '${response.meta.total} result${response.meta.total == 1 ? '' : 's'} found',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Colors.grey[700],
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
+              if (clientCount > 0 || childCount > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Wrap(
+                    spacing: 8,
+                    children: [
+                      if (clientCount > 0)
+                        Chip(
+                          label: Text(
+                              '$clientCount Client${clientCount == 1 ? '' : 's'}'),
+                          avatar: const Icon(Icons.person, size: 16),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      if (childCount > 0)
+                        Chip(
+                          label: Text(
+                              '$childCount Child${childCount == 1 ? '' : 'ren'}'),
+                          avatar: const Icon(Icons.child_care, size: 16),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                    ],
+                  ),
                 ),
+            ],
           ),
         ),
 
@@ -235,13 +266,18 @@ class _ClientCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mostRecentCase = client.mostRecentCase;
+    final isChild = client.isChild;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () {
-          // Navigate to client detail
-          context.push('/clients/${client.id}');
+          // Navigate to appropriate detail screen
+          if (isChild) {
+            context.push('/children/${client.id}');
+          } else {
+            context.push('/clients/${client.id}');
+          }
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -249,19 +285,55 @@ class _ClientCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Client name and status
+              // Client/Child name and status
               Row(
                 children: [
+                  // Icon indicator for child vs client
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color:
+                          isChild ? Colors.blue.shade50 : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      isChild ? Icons.child_care : Icons.person,
+                      color: isChild ? Colors.blue : Colors.grey.shade700,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          client.fullName,
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                client.fullName,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
+                            ),
+                            if (client.nickname != null) ...[
+                              const SizedBox(width: 4),
+                              Text(
+                                '"${client.nickname}"',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(
+                                      color: Colors.grey[600],
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                              ),
+                            ],
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(

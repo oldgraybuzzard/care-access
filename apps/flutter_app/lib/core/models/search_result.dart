@@ -24,12 +24,16 @@ class SearchMeta {
   final int page;
   final int limit;
   final int totalPages;
+  final int? clientCount;
+  final int? childCount;
 
   SearchMeta({
     required this.total,
     required this.page,
     required this.limit,
     required this.totalPages,
+    this.clientCount,
+    this.childCount,
   });
 
   factory SearchMeta.fromJson(Map<String, dynamic> json) {
@@ -38,6 +42,8 @@ class SearchMeta {
       page: json['page'],
       limit: json['limit'],
       totalPages: json['totalPages'],
+      clientCount: json['clientCount'],
+      childCount: json['childCount'],
     );
   }
 }
@@ -51,6 +57,8 @@ class SearchResultClient {
   final String? programId;
   final Program? program;
   final List<Case> cases;
+  final String? type; // 'client' or 'child'
+  final Map<String, dynamic>? childData; // Additional child-specific data
 
   SearchResultClient({
     required this.id,
@@ -61,6 +69,8 @@ class SearchResultClient {
     this.programId,
     this.program,
     this.cases = const [],
+    this.type,
+    this.childData,
   });
 
   factory SearchResultClient.fromJson(Map<String, dynamic> json) {
@@ -79,6 +89,8 @@ class SearchResultClient {
       cases: json['cases'] != null
           ? (json['cases'] as List).map((c) => Case.fromJson(c)).toList()
           : [],
+      type: json['_type'],
+      childData: json['_childData'],
     );
   }
 
@@ -95,6 +107,12 @@ class SearchResultClient {
   }
 
   Case? get mostRecentCase => cases.isNotEmpty ? cases.first : null;
+
+  bool get isChild => type == 'child';
+
+  String? get nickname => childData?['nickname'];
+
+  String? get gender => childData?['gender'];
 }
 
 class Program {
