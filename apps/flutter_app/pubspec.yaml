@@ -1,5 +1,5 @@
 name: fcf_app
-description: Friends of Children and Families - ExtendedReach Reporting & Visualization App
+description: CareAccess Reporting & Visualization App
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -64,19 +64,19 @@ flutter:
 
   assets:
     # Light mode logos
-    - ../../assets/brand/careaccess_icon.svg
-    - ../../assets/brand/careaccess_wordmark.svg
-    - ../../assets/brand/careaccess_lockup.svg
+    - assets/brand/careaccess_icon.svg
+    - assets/brand/careaccess_wordmark.svg
+    - assets/brand/careaccess_lockup.svg
     # Dark mode logos
-    - ../../assets/brand/careaccess_icon_dark.svg
-    - ../../assets/brand/careaccess_wordmark_dark.svg
-    - ../../assets/brand/careaccess_lockup_dark.svg
+    - assets/brand/careaccess_icon_dark.svg
+    - assets/brand/careaccess_wordmark_dark.svg
+    - assets/brand/careaccess_lockup_dark.svg
     # Favicons
-    - ../../assets/brand/favicon.ico
-    - ../../assets/brand/favicon_16x16.png
-    - ../../assets/brand/favicon_32x32.png
-    - ../../assets/brand/favicon_48x48.png
-    - ../../assets/brand/favicon_64x64.png
+    - assets/brand/favicon.ico
+    - assets/brand/favicon_16x16.png
+    - assets/brand/favicon_32x32.png
+    - assets/brand/favicon_48x48.png
+    - assets/brand/favicon_64x64.png
 
   # fonts:
   #   - family: Schyler
