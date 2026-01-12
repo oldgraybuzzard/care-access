@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/widgets/organization_badge.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../providers/dashboard_provider.dart';
 import '../widgets/date_range_filter.dart';
@@ -20,6 +21,8 @@ class DashboardScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Dashboard'),
         actions: [
+          const OrganizationBadge(),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
