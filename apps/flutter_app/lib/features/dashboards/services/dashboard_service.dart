@@ -85,23 +85,28 @@ class DashboardService {
 
       switch (statusCode) {
         case 401:
-          return Exception('Unauthorized. Please log in again.');
+          return Exception(
+              'Your session has expired to protect confidential information. Please sign in again.');
         case 403:
-          return Exception('Access denied.');
+          return Exception(
+              'You do not have permission to view this information.');
         case 404:
-          return Exception('Resource not found.');
+          return Exception('The requested information could not be found.');
         case 500:
-          return Exception('Server error. Please try again later.');
+          return Exception(
+              'Unable to load data at this time. Please try again later.');
         default:
           return Exception('Error: $message');
       }
     } else if (error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout) {
       return Exception(
-          'Connection timeout. Please check your internet connection.',);
+        'Connection timeout. Please check your internet connection.',
+      );
     } else if (error.type == DioExceptionType.connectionError) {
       return Exception(
-          'Connection error. Please check your internet connection.',);
+        'Connection error. Please check your internet connection.',
+      );
     } else {
       return Exception('An unexpected error occurred: ${error.message}');
     }

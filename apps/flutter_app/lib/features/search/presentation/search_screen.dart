@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../providers/search_provider.dart';
@@ -177,7 +178,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Error loading results',
+            AppStrings.errorLoadingData,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Colors.red[700],
                 ),

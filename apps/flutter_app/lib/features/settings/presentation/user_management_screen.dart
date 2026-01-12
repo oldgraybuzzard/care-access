@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/api/organization_api.dart';
 import '../../../core/models/org_user.dart';
+import '../../../core/widgets/audit_notice.dart';
 
 final organizationUsersProvider = FutureProvider<List<OrgUser>>((ref) async {
   final api = ref.watch(organizationApiProvider);
@@ -48,13 +49,20 @@ class UserManagementScreen extends ConsumerWidget {
                   ],
                 ),
               )
-            : ListView.builder(
+            : ListView(
                 padding: const EdgeInsets.all(16),
-                itemCount: users.length,
-                itemBuilder: (context, index) {
-                  final user = users[index];
-                  return _UserCard(user: user);
-                },
+                children: [
+                  // Admin Responsibility Notice
+                  const AdminResponsibilityNotice(),
+                  const SizedBox(height: 16),
+
+                  // Audit Notice
+                  const AuditNotice(),
+                  const SizedBox(height: 16),
+
+                  // User Cards
+                  ...users.map((user) => _UserCard(user: user)),
+                ],
               ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/widgets/organization_badge.dart';
 import '../../../shared/widgets/app_drawer.dart';
@@ -262,6 +263,26 @@ class SettingsScreen extends ConsumerWidget {
                           value: true,
                           onChanged: null, // Disabled for now
                         ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.policy),
+                        title: const Text(AppStrings.policies),
+                        subtitle: const Text(
+                            'Data ethics framework and user access policy'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          context.push('/settings/policies');
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.info_outline),
+                        title: const Text('About CareAccess'),
+                        subtitle:
+                            const Text('Ethics, principles, and transparency'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          context.push('/settings/about');
+                        },
                       ),
                     ],
                   ),

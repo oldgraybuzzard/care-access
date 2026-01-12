@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/providers/auth_provider.dart';
+import '../../core/constants/app_strings.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -27,41 +28,57 @@ class AppDrawer extends ConsumerWidget {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.search),
-            title: const Text('Search'),
-            onTap: () {
-              context.go('/search');
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.dashboard),
-            title: const Text('Dashboard'),
+            leading: const Icon(Icons.home),
+            title: const Text(AppStrings.navHome),
             onTap: () {
               context.go('/dashboard');
               Navigator.pop(context);
             },
           ),
           ListTile(
+            leading: const Icon(Icons.search),
+            title: const Text(AppStrings.navSearch),
+            onTap: () {
+              context.go('/search');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.child_care),
-            title: const Text('Children'),
+            title: const Text(AppStrings.navChildrenFamilies),
             onTap: () {
               context.go('/children');
               Navigator.pop(context);
             },
           ),
           ListTile(
+            leading: const Icon(Icons.folder_open),
+            title: const Text(AppStrings.navCases),
+            onTap: () {
+              context.go('/cases');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.assessment),
-            title: const Text('Reports'),
+            title: const Text(AppStrings.navReports),
             onTap: () {
               context.go('/reports');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.dashboard),
+            title: const Text(AppStrings.navDashboards),
+            onTap: () {
+              context.go('/dashboard');
               Navigator.pop(context);
             },
           ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
+            title: const Text(AppStrings.navSettings),
             onTap: () {
               context.go('/settings');
               Navigator.pop(context);
@@ -69,7 +86,7 @@ class AppDrawer extends ConsumerWidget {
           ),
           ListTile(
             leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
+            title: const Text(AppStrings.navLogout),
             onTap: () async {
               await ref.read(authServiceProvider).logout();
               if (context.mounted) {

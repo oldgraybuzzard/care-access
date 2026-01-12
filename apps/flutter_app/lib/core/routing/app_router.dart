@@ -16,6 +16,8 @@ import '../../features/settings/presentation/organization_settings_screen.dart';
 import '../../features/settings/presentation/change_password_screen.dart';
 import '../../features/settings/presentation/organization_edit_screen.dart';
 import '../../features/settings/presentation/user_management_screen.dart';
+import '../../features/settings/presentation/about_screen.dart';
+import '../../features/settings/presentation/policies_screen.dart';
 import '../../features/admin/presentation/admin_organizations_screen.dart';
 import '../providers/auth_provider.dart';
 
@@ -142,6 +144,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/settings/users',
         builder: (context, state) => const UserManagementScreen(),
+      ),
+      GoRoute(
+        path: '/settings/policies',
+        builder: (context, state) => const PoliciesScreen(),
+      ),
+      GoRoute(
+        path: '/settings/about',
+        builder: (context, state) => const AboutScreen(),
       ),
       GoRoute(
         path: '/admin/organizations',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/constants/app_strings.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -45,8 +46,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Login failed: ${e.toString()}'),
+          const SnackBar(
+            content: Text(AppStrings.loginFailed),
             backgroundColor: Colors.red,
           ),
         );
@@ -111,7 +112,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                         // App Title
                         Text(
-                          'Care Access',
+                          AppStrings.loginHeader,
                           style: Theme.of(context)
                               .textTheme
                               .headlineLarge
@@ -121,27 +122,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 16),
 
                         // Subtitle
                         Text(
-                          'Empowering Care Organizations',
+                          AppStrings.loginSubtext,
                           style: Theme.of(context)
                               .textTheme
-                              .titleMedium
+                              .bodyMedium
                               ?.copyWith(
                                 color: colorScheme.onSurface.withOpacity(0.7),
-                              ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Comprehensive case management and reporting platform',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color: colorScheme.onSurface.withOpacity(0.6),
                               ),
                           textAlign: TextAlign.center,
                         ),
@@ -149,13 +139,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         TextFormField(
                           controller: _emailController,
                           decoration: const InputDecoration(
-                            labelText: 'Email',
+                            labelText: AppStrings.emailFieldLabel,
                             prefixIcon: Icon(Icons.email),
                           ),
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
+                              return AppStrings.emailRequired;
+                            }
+                            if (!value.contains('@')) {
+                              return AppStrings.emailInvalid;
                             }
                             return null;
                           },
@@ -164,18 +157,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         TextFormField(
                           controller: _passwordController,
                           decoration: const InputDecoration(
-                            labelText: 'Password',
+                            labelText: AppStrings.passwordFieldLabel,
                             prefixIcon: Icon(Icons.lock),
                           ),
                           obscureText: true,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
+                              return AppStrings.passwordRequired;
                             }
                             return null;
                           },
                         ),
+                        const SizedBox(height: 8),
+
+                        // Security Notice
+                        Text(
+                          AppStrings.securityNotice,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(
+                                color: colorScheme.onSurface.withOpacity(0.6),
+                                fontStyle: FontStyle.italic,
+                              ),
+                          textAlign: TextAlign.center,
+                        ),
                         const SizedBox(height: 24),
+
                         FilledButton(
                           onPressed: _isLoading ? null : _handleLogin,
                           child: _isLoading
@@ -185,7 +193,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   child:
                                       CircularProgressIndicator(strokeWidth: 2),
                                 )
-                              : const Text('Login'),
+                              : const Text(AppStrings.loginButton),
                         ),
                         const SizedBox(height: 16),
                         Text(

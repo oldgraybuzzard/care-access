@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/widgets/organization_badge.dart';
+import '../../../core/constants/app_strings.dart';
 import '../../../shared/widgets/app_drawer.dart';
 import '../providers/dashboard_provider.dart';
 import '../widgets/date_range_filter.dart';
@@ -19,7 +20,7 @@ class DashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: const Text(AppStrings.dashboardHeader),
         actions: [
           const OrganizationBadge(),
           const SizedBox(width: 8),
@@ -315,7 +316,7 @@ class _ErrorCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Error loading data',
+              AppStrings.errorLoadingData,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
@@ -330,7 +331,7 @@ class _ErrorCard extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: const Text(AppStrings.retry),
             ),
           ],
         ),
