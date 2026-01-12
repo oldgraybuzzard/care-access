@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/constants/brand_assets.dart';
+import '../../../core/theme/app_theme.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -19,35 +22,31 @@ class AboutScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // App Icon and Name
+            // CareAccess Logo and Branding
             Center(
               child: Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.health_and_safety,
-                      size: 80,
-                      color: colorScheme.primary,
-                    ),
+                  // Logo
+                  SvgPicture.asset(
+                    BrandAssets.lockup,
+                    height: 100,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 24),
+                  // Tagline
                   Text(
-                    AppStrings.appName,
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.primary,
+                    BrandInfo.tagline,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: CareAccessColors.warmGray,
+                      fontStyle: FontStyle.italic,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
+                  // Product Owner
                   Text(
-                    AppStrings.appSubtitle,
+                    BrandInfo.attribution,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.7),
+                      color: CareAccessColors.warmGray,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -169,29 +168,21 @@ class AboutScreen extends StatelessWidget {
 
             const SizedBox(height: 32),
 
-            // Version Info
+            // Version and Copyright Info
             Center(
               child: Column(
                 children: [
                   Text(
                     'Version 1.0.0',
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.5),
+                      color: CareAccessColors.warmGray,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '© 2024 CareAccess',
+                    BrandInfo.copyright,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.5),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Built with care for children and families',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurface.withOpacity(0.5),
-                      fontStyle: FontStyle.italic,
+                      color: CareAccessColors.warmGray,
                     ),
                   ),
                 ],

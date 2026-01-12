@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/providers/auth_provider.dart';
 import '../../../core/constants/app_strings.dart';
+import '../../../core/constants/brand_assets.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -95,34 +97,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Logo/Icon
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.health_and_safety,
-                            size: 64,
-                            color: colorScheme.primary,
-                          ),
+                        // CareAccess Logo
+                        SvgPicture.asset(
+                          BrandAssets.lockup,
+                          height: 80,
                         ),
                         const SizedBox(height: 32),
-
-                        // App Title
-                        Text(
-                          AppStrings.loginHeader,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineLarge
-                              ?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.primary,
-                              ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
 
                         // Subtitle
                         Text(

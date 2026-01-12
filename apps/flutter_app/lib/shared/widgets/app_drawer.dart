@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/providers/auth_provider.dart';
 import '../../core/constants/app_strings.dart';
+import '../../core/constants/brand_assets.dart';
+import '../../core/theme/app_theme.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -16,15 +19,41 @@ class AppDrawer extends ConsumerWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          UserAccountsDrawerHeader(
-            accountName: Text(user?.name ?? 'User'),
-            accountEmail: Text(user?.email ?? ''),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Text(
-                user?.name.substring(0, 1).toUpperCase() ?? 'U',
-                style: const TextStyle(fontSize: 24),
-              ),
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: CareAccessColors.teal,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // CareAccess Logo
+                SvgPicture.asset(
+                  BrandAssets.wordmark,
+                  height: 32,
+                  colorFilter: const ColorFilter.mode(
+                    Colors.white,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                const Spacer(),
+                // User Info
+                Text(
+                  user?.name ?? 'User',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  user?.email ?? '',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
             ),
           ),
           ListTile(
@@ -93,6 +122,31 @@ class AppDrawer extends ConsumerWidget {
                 context.go('/login');
               }
             },
+          ),
+          const Divider(),
+          // Brand Attribution Footer
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                Text(
+                  BrandInfo.attribution,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: CareAccessColors.warmGray,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  BrandInfo.tagline,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: CareAccessColors.warmGray,
+                        fontStyle: FontStyle.italic,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ],
       ),
