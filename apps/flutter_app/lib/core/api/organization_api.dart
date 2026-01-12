@@ -76,6 +76,26 @@ class OrganizationApi {
         .map((json) => RoleInfo.fromJson(json))
         .toList();
   }
+
+  /// Get all organizations (super admin only)
+  Future<List<Organization>> getAllOrganizations() async {
+    final response = await _dio.get('/admin/organizations');
+    return (response.data as List)
+        .map((json) => Organization.fromJson(json))
+        .toList();
+  }
+
+  /// Update organization status (super admin only)
+  Future<Organization> updateOrganizationStatus(
+    String organizationId,
+    String status,
+  ) async {
+    final response = await _dio.patch(
+      '/admin/organizations/$organizationId',
+      data: {'status': status},
+    );
+    return Organization.fromJson(response.data);
+  }
 }
 
 final organizationApiProvider = Provider<OrganizationApi>((ref) {

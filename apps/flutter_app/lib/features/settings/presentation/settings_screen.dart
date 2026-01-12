@@ -175,6 +175,50 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
 
+              // Super Admin Section (only for admins)
+              if (user.roles.contains('admin'))
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.admin_panel_settings,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Super Admin',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        ListTile(
+                          leading: const Icon(Icons.business),
+                          title: const Text('Manage Organizations'),
+                          subtitle:
+                              const Text('View and manage all organizations'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
+                            context.push('/admin/organizations');
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              if (user.roles.contains('admin')) const SizedBox(height: 16),
+
               // App Settings Section
               Card(
                 child: Padding(
