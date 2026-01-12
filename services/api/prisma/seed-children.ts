@@ -133,9 +133,104 @@ async function main() {
     },
   });
 
+  // Create education records for Emma
+  const emmaEd1 = await prisma.educationRecord.create({
+    data: {
+      childId: child1.id,
+      schoolYear: '2023-2024',
+      schoolName: 'Springfield Elementary School',
+      gradeLevel: '3rd Grade',
+      gpa: 3.2,
+      readingLevel: 'Grade Level',
+      mathLevel: 'Below Grade Level',
+      strugglingSubjects: ['Math', 'Science'],
+      daysPresent: 145,
+      daysAbsent: 15,
+      tardies: 8,
+      suspensions: 0,
+      detentions: 2,
+      hasIep: true,
+      has504Plan: false,
+      specialServices: ['Speech Therapy', 'Counseling'],
+      teacherFeedback: 'Emma is a bright and creative student. She struggles with focus and completing assignments on time. She works well in small groups and responds positively to encouragement. Her anxiety sometimes interferes with her ability to participate in class.',
+      extracurricular: ['Art Club', 'School Choir'],
+    },
+  });
+
+  const emmaEd2 = await prisma.educationRecord.create({
+    data: {
+      childId: child1.id,
+      schoolYear: '2022-2023',
+      schoolName: 'Springfield Elementary School',
+      gradeLevel: '2nd Grade',
+      gpa: 3.5,
+      readingLevel: 'Above Grade Level',
+      mathLevel: 'Grade Level',
+      strugglingSubjects: [],
+      daysPresent: 155,
+      daysAbsent: 10,
+      tardies: 5,
+      suspensions: 0,
+      detentions: 0,
+      hasIep: false,
+      has504Plan: false,
+      teacherFeedback: 'Emma is doing well academically. She is a joy to have in class and gets along well with her peers.',
+      extracurricular: ['Art Club'],
+    },
+  });
+
+  // Create education records for Marcus
+  const marcusEd1 = await prisma.educationRecord.create({
+    data: {
+      childId: child2.id,
+      schoolYear: '2023-2024',
+      schoolName: 'Lincoln Middle School',
+      gradeLevel: '7th Grade',
+      gpa: 2.1,
+      readingLevel: 'Below Grade Level',
+      mathLevel: 'Below Grade Level',
+      strugglingSubjects: ['English', 'Math', 'History'],
+      daysPresent: 120,
+      daysAbsent: 35,
+      tardies: 22,
+      suspensions: 3,
+      detentions: 8,
+      hasIep: true,
+      has504Plan: true,
+      specialServices: ['Special Education', 'Behavioral Support', 'Counseling'],
+      teacherFeedback: 'Marcus has significant behavioral challenges that interfere with his learning. He can be disruptive in class and has difficulty following directions. However, when engaged in topics he cares about (especially sports), he shows potential. He needs consistent structure and positive reinforcement.',
+      extracurricular: ['Basketball Team'],
+    },
+  });
+
+  const marcusEd2 = await prisma.educationRecord.create({
+    data: {
+      childId: child2.id,
+      schoolYear: '2022-2023',
+      schoolName: 'Lincoln Middle School',
+      gradeLevel: '6th Grade',
+      gpa: 1.8,
+      readingLevel: 'Below Grade Level',
+      mathLevel: 'Below Grade Level',
+      strugglingSubjects: ['All subjects'],
+      daysPresent: 100,
+      daysAbsent: 55,
+      tardies: 30,
+      suspensions: 5,
+      detentions: 12,
+      hasIep: true,
+      has504Plan: false,
+      specialServices: ['Special Education', 'Counseling'],
+      teacherFeedback: 'Marcus struggles significantly with attendance and behavior. Multiple interventions have been attempted with limited success.',
+      extracurricular: [],
+    },
+  });
+
   console.log('✅ Created family:', family.familyName);
   console.log('✅ Created child:', child1.firstName, child1.lastName);
   console.log('✅ Created child:', child2.firstName, child2.lastName);
+  console.log('✅ Created education records for Emma:', 2);
+  console.log('✅ Created education records for Marcus:', 2);
   console.log('🎉 Seeding complete!');
 }
 

@@ -167,7 +167,7 @@ export class ChildrenService {
     const child = await this.findOne(id);
 
     const updateData: any = { ...updateChildDto };
-    
+
     if (updateChildDto.dateOfBirth) {
       updateData.dateOfBirth = new Date(updateChildDto.dateOfBirth);
     }
@@ -175,6 +175,24 @@ export class ChildrenService {
     return this.prisma.child.update({
       where: { id },
       data: updateData,
+      include: {
+        family: true,
+        client: true,
+      },
+    });
+  }
+
+  async remove(id: string) {
+    // Verify child exists
+    const child = await this.findOne(id);
+
+    // Soft delete by setting status to 'Deleted'
+    return this.prisma.child.update({
+      where: { id },
+      data: {
+        status: 'Deleted',
+        updatedAt: new Date(),
+      },
       include: {
         family: true,
         client: true,

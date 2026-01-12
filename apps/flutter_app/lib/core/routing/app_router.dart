@@ -7,6 +7,8 @@ import '../../features/clients/presentation/client_detail_screen.dart';
 import '../../features/cases/presentation/case_detail_screen.dart';
 import '../../features/children/presentation/children_list_screen.dart';
 import '../../features/children/presentation/child_profile_screen.dart';
+import '../../features/children/presentation/child_form_screen.dart';
+import '../../features/children/presentation/child_intake_screen.dart';
 import '../../features/reports/presentation/reports_screen.dart';
 import '../../features/dashboards/presentation/dashboard_screen.dart';
 import '../providers/auth_provider.dart';
@@ -86,10 +88,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ChildrenListScreen(),
       ),
       GoRoute(
+        path: '/children/new',
+        builder: (context, state) => const ChildFormScreen(),
+      ),
+      GoRoute(
+        path: '/children/intake',
+        builder: (context, state) => const ChildIntakeScreen(),
+      ),
+      GoRoute(
         path: '/children/:id',
         builder: (context, state) {
           final id = state.pathParameters['id']!;
           return ChildProfileScreen(childId: id);
+        },
+      ),
+      GoRoute(
+        path: '/children/:id/edit',
+        builder: (context, state) {
+          final id = state.pathParameters['id']!;
+          return ChildFormScreen(childId: id);
         },
       ),
       GoRoute(

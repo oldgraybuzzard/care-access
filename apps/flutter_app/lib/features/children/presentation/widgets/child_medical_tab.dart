@@ -12,6 +12,7 @@ class ChildMedicalTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      primary: false,
       padding: const EdgeInsets.all(16),
       children: [
         // Medications
@@ -38,7 +39,8 @@ class ChildMedicalTab extends StatelessWidget {
         ],
 
         // Medical Conditions
-        if (child.medicalConditions != null && child.medicalConditions!.isNotEmpty) ...[
+        if (child.medicalConditions != null &&
+            child.medicalConditions!.isNotEmpty) ...[
           _buildSection(
             context,
             'Medical Conditions',
@@ -49,7 +51,8 @@ class ChildMedicalTab extends StatelessWidget {
         ],
 
         // Mental Health Diagnoses
-        if (child.mentalHealthDx != null && child.mentalHealthDx!.isNotEmpty) ...[
+        if (child.mentalHealthDx != null &&
+            child.mentalHealthDx!.isNotEmpty) ...[
           _buildSection(
             context,
             'Mental Health Diagnoses',
@@ -68,7 +71,8 @@ class ChildMedicalTab extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.badge, color: Theme.of(context).colorScheme.primary),
+                    Icon(Icons.badge,
+                        color: Theme.of(context).colorScheme.primary),
                     const SizedBox(width: 8),
                     const Text(
                       'Medical Identifiers',
@@ -83,7 +87,8 @@ class ChildMedicalTab extends StatelessWidget {
                 if (child.medicaidId != null)
                   _buildInfoRow('Medicaid ID', child.medicaidId!),
                 if (child.ssn != null)
-                  _buildInfoRow('SSN', '***-**-${child.ssn!.substring(child.ssn!.length - 4)}'),
+                  _buildInfoRow('SSN',
+                      '***-**-${child.ssn!.substring(child.ssn!.length - 4)}'),
               ],
             ),
           ),
@@ -107,7 +112,8 @@ class ChildMedicalTab extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: color ?? Theme.of(context).colorScheme.primary),
+                Icon(icon,
+                    color: color ?? Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
                   title,
@@ -167,4 +173,3 @@ class ChildMedicalTab extends StatelessWidget {
     );
   }
 }
-

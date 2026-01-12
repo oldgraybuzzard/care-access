@@ -30,6 +30,7 @@ class ChildFamilyTab extends StatelessWidget {
     final family = child.family!;
 
     return ListView(
+      primary: false,
       padding: const EdgeInsets.all(16),
       children: [
         Card(
@@ -40,7 +41,8 @@ class ChildFamilyTab extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.home, color: Theme.of(context).colorScheme.primary),
+                    Icon(Icons.home,
+                        color: Theme.of(context).colorScheme.primary),
                     const SizedBox(width: 8),
                     Text(
                       family.familyName,
@@ -54,14 +56,13 @@ class ChildFamilyTab extends StatelessWidget {
                 const SizedBox(height: 16),
                 if (family.primaryContact != null)
                   _buildInfoRow('Primary Contact', family.primaryContact!),
-                if (family.phone != null)
-                  _buildInfoRow('Phone', family.phone!),
-                if (family.email != null)
-                  _buildInfoRow('Email', family.email!),
+                if (family.phone != null) _buildInfoRow('Phone', family.phone!),
+                if (family.email != null) _buildInfoRow('Email', family.email!),
                 if (family.address != null) ...[
                   _buildInfoRow(
                     'Address',
-                    '${family.address}, ${family.city ?? ''}, ${family.state ?? ''} ${family.zipCode ?? ''}'.trim(),
+                    '${family.address}, ${family.city ?? ''}, ${family.state ?? ''} ${family.zipCode ?? ''}'
+                        .trim(),
                   ),
                 ],
                 if (family.housingType != null)
@@ -103,4 +104,3 @@ class ChildFamilyTab extends StatelessWidget {
     );
   }
 }
-

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/api/children_api.dart';
 import '../../../core/models/child.dart';
+import '../../../core/widgets/delete_confirmation_dialog.dart';
 import 'widgets/child_header.dart';
 import 'widgets/child_overview_tab.dart';
 import 'widgets/child_medical_tab.dart';
@@ -10,7 +12,8 @@ import 'widgets/child_behavioral_tab.dart';
 import 'widgets/child_family_tab.dart';
 import 'widgets/child_goals_tab.dart';
 
-final childProfileProvider = FutureProvider.family<Child, String>((ref, childId) async {
+final childProfileProvider =
+    FutureProvider.family<Child, String>((ref, childId) async {
   final api = ref.watch(childrenApiProvider);
   return api.getChild(childId);
 });
@@ -29,7 +32,7 @@ class ChildProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       body: childAsync.when(
-        data: (child) => _buildProfile(context, child),
+        data: (child) => _buildProfile(context, ref, child),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, stack) => Center(
           child: Column(
@@ -50,7 +53,40 @@ class ChildProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfile(BuildContext context, Child child) {
+  Future<void> _handleDelete(
+      BuildContext context, WidgetRef ref, Child child) async {
+    final confirmed = await DeleteConfirmationDialog.show(
+      context: context,
+      title: 'Delete Child',
+      message: 'Are you sure you want to delete this child profile?',
+      itemName: '${child.firstName} ${child.lastName}',
+      onConfirm: () async {
+        try {
+          final api = ref.read(childrenApiProvider);
+          await api.deleteChild(childId);
+
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Child deleted successfully')),
+            );
+            // Navigate back to children list
+            context.go('/children');
+          }
+        } catch (e) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Error deleting child: $e'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      },
+    );
+  }
+
+  Widget _buildProfile(BuildContext context, WidgetRef ref, Child child) {
     return DefaultTabController(
       length: 6,
       child: NestedScrollView(
@@ -62,6 +98,39 @@ class ChildProfileScreen extends ConsumerWidget {
               flexibleSpace: FlexibleSpaceBar(
                 background: ChildHeader(child: child),
               ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () async {
+                    final result =
+                        await context.push('/children/$childId/edit');
+                    if (result == true && context.mounted) {
+                      // Refresh the profile
+                      ref.invalidate(childProfileProvider(childId));
+                    }
+                  },
+                ),
+                PopupMenuButton<String>(
+                  onSelected: (value) async {
+                    if (value == 'delete') {
+                      await _handleDelete(context, ref, child);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: Colors.red),
+                          SizedBox(width: 8),
+                          Text('Delete Child',
+                              style: TextStyle(color: Colors.red)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
             SliverPersistentHeader(
               pinned: true,
@@ -111,7 +180,8 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   double get maxExtent => _tabBar.preferredSize.height;
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
       child: _tabBar,
@@ -123,4 +193,3 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     return false;
   }
 }
-

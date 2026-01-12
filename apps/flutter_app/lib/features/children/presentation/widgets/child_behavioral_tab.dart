@@ -12,6 +12,7 @@ class ChildBehavioralTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      primary: false,
       padding: const EdgeInsets.all(16),
       children: [
         // Trauma History
@@ -24,7 +25,8 @@ class ChildBehavioralTab extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.history, color: Theme.of(context).colorScheme.primary),
+                      Icon(Icons.history,
+                          color: Theme.of(context).colorScheme.primary),
                       const SizedBox(width: 8),
                       const Text(
                         'Trauma History',
@@ -57,7 +59,8 @@ class ChildBehavioralTab extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.favorite, color: Theme.of(context).colorScheme.primary),
+                      Icon(Icons.favorite,
+                          color: Theme.of(context).colorScheme.primary),
                       const SizedBox(width: 8),
                       const Text(
                         'Attachment Style',
@@ -105,4 +108,3 @@ class ChildBehavioralTab extends StatelessWidget {
     );
   }
 }
-

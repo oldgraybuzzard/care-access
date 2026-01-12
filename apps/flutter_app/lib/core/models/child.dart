@@ -52,6 +52,9 @@ class Child {
   final String? familyId;
   final Family? family;
 
+  // Related Records
+  final List<EducationRecord>? educationRecords;
+
   // Metadata
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -108,6 +111,7 @@ class Child {
     this.emergencyContacts,
     this.familyId,
     this.family,
+    this.educationRecords,
     required this.createdAt,
     required this.updatedAt,
     this.createdBy,
@@ -151,6 +155,11 @@ class Child {
       emergencyContacts: json['emergencyContacts'],
       familyId: json['familyId'],
       family: json['family'] != null ? Family.fromJson(json['family']) : null,
+      educationRecords: json['educationRecords'] != null
+          ? (json['educationRecords'] as List)
+              .map((e) => EducationRecord.fromJson(e))
+              .toList()
+          : null,
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       createdBy: json['createdBy'],
@@ -291,5 +300,132 @@ class Family {
       'familyStressors': familyStressors,
       'familyStrengths': familyStrengths,
     };
+  }
+}
+
+class EducationRecord {
+  final String id;
+  final String childId;
+  final String schoolYear;
+  final String schoolName;
+  final String gradeLevel;
+
+  // Academic Performance
+  final double? gpa;
+  final String? readingLevel;
+  final String? mathLevel;
+  final List<dynamic>? strugglingSubjects;
+
+  // Attendance & Behavior
+  final int? daysPresent;
+  final int? daysAbsent;
+  final int? tardies;
+  final int? suspensions;
+  final int? detentions;
+
+  // Special Education
+  final bool hasIep;
+  final bool has504Plan;
+  final List<dynamic>? specialServices;
+
+  // Additional Info
+  final String? teacherFeedback;
+  final List<dynamic>? extracurricular;
+
+  // Metadata
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  EducationRecord({
+    required this.id,
+    required this.childId,
+    required this.schoolYear,
+    required this.schoolName,
+    required this.gradeLevel,
+    this.gpa,
+    this.readingLevel,
+    this.mathLevel,
+    this.strugglingSubjects,
+    this.daysPresent,
+    this.daysAbsent,
+    this.tardies,
+    this.suspensions,
+    this.detentions,
+    this.hasIep = false,
+    this.has504Plan = false,
+    this.specialServices,
+    this.teacherFeedback,
+    this.extracurricular,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory EducationRecord.fromJson(Map<String, dynamic> json) {
+    return EducationRecord(
+      id: json['id'],
+      childId: json['childId'],
+      schoolYear: json['schoolYear'],
+      schoolName: json['schoolName'],
+      gradeLevel: json['gradeLevel'],
+      gpa: json['gpa']?.toDouble(),
+      readingLevel: json['readingLevel'],
+      mathLevel: json['mathLevel'],
+      strugglingSubjects: json['strugglingSubjects'],
+      daysPresent: json['daysPresent'],
+      daysAbsent: json['daysAbsent'],
+      tardies: json['tardies'],
+      suspensions: json['suspensions'],
+      detentions: json['detentions'],
+      hasIep: json['hasIep'] ?? false,
+      has504Plan: json['has504Plan'] ?? false,
+      specialServices: json['specialServices'],
+      teacherFeedback: json['teacherFeedback'],
+      extracurricular: json['extracurricular'],
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'childId': childId,
+      'schoolYear': schoolYear,
+      'schoolName': schoolName,
+      'gradeLevel': gradeLevel,
+      'gpa': gpa,
+      'readingLevel': readingLevel,
+      'mathLevel': mathLevel,
+      'strugglingSubjects': strugglingSubjects,
+      'daysPresent': daysPresent,
+      'daysAbsent': daysAbsent,
+      'tardies': tardies,
+      'suspensions': suspensions,
+      'detentions': detentions,
+      'hasIep': hasIep,
+      'has504Plan': has504Plan,
+      'specialServices': specialServices,
+      'teacherFeedback': teacherFeedback,
+      'extracurricular': extracurricular,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  // Helper getters
+  double get attendanceRate {
+    final total = (daysPresent ?? 0) + (daysAbsent ?? 0);
+    if (total == 0) return 0;
+    return ((daysPresent ?? 0) / total) * 100;
+  }
+
+  bool get hasSpecialEducation => hasIep || has504Plan;
+
+  String get academicStatus {
+    if (gpa == null) return 'Unknown';
+    if (gpa! >= 3.5) return 'Excellent';
+    if (gpa! >= 3.0) return 'Good';
+    if (gpa! >= 2.0) return 'Fair';
+    return 'Needs Improvement';
   }
 }

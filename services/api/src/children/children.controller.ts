@@ -1,13 +1,14 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Delete,
+  Param,
   Query,
-  UseGuards, 
-  Request 
+  UseGuards,
+  Request
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { ChildrenService } from './children.service';
@@ -106,6 +107,21 @@ export class ChildrenController {
     });
 
     return child;
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete child (soft delete)' })
+  async remove(@Request() req, @Param('id') id: string) {
+    const child = await this.childrenService.remove(id);
+
+    await this.auditService.log({
+      userId: req.user.userId,
+      action: 'delete',
+      entityType: 'child',
+      entityId: id,
+    });
+
+    return { message: 'Child deleted successfully', child };
   }
 }
 

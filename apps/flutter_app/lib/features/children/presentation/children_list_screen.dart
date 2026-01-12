@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/api/children_api.dart';
 import '../../../core/models/child.dart';
+import '../../../shared/widgets/app_drawer.dart';
 
 final childrenListProvider =
     FutureProvider.autoDispose<List<Child>>((ref) async {
@@ -28,18 +29,50 @@ class _ChildrenListScreenState extends ConsumerState<ChildrenListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Children'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
             onPressed: () {
-              // TODO: Navigate to add child screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Add child coming soon...')),
-              );
+              Scaffold.of(context).openDrawer();
             },
+          ),
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.add),
+            onSelected: (value) async {
+              final result = await context.push(value);
+              if (result == true && mounted) {
+                // Refresh the list
+                ref.invalidate(childrenListProvider);
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: '/children/new',
+                child: Row(
+                  children: [
+                    Icon(Icons.person_add),
+                    SizedBox(width: 8),
+                    Text('Quick Add Child'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: '/children/intake',
+                child: Row(
+                  children: [
+                    Icon(Icons.assignment),
+                    SizedBox(width: 8),
+                    Text('Full Intake Form'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
+      drawer: const AppDrawer(),
       body: Column(
         children: [
           // Search Bar
@@ -66,9 +99,14 @@ class _ChildrenListScreenState extends ConsumerState<ChildrenListScreen> {
           Expanded(
             child: childrenAsync.when(
               data: (children) {
+                // Filter out deleted children
+                final activeChildren = children
+                    .where((child) => child.status != 'Deleted')
+                    .toList();
+
                 final filteredChildren = _searchQuery.isEmpty
-                    ? children
-                    : children.where((child) {
+                    ? activeChildren
+                    : activeChildren.where((child) {
                         return child.fullName
                                 .toLowerCase()
                                 .contains(_searchQuery) ||

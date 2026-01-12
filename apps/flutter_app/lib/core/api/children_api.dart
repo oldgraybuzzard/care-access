@@ -61,6 +61,11 @@ class ChildrenApi {
     return Child.fromJson(response.data);
   }
 
+  /// Delete a child (soft delete)
+  Future<void> deleteChild(String id) async {
+    await _dio.delete('/children/$id');
+  }
+
   /// Get child's assessments
   Future<List<dynamic>> getChildAssessments(String childId) async {
     final response = await _dio.get('/children/$childId/assessments');
@@ -97,4 +102,3 @@ class ChildrenApi {
     return response.data['data'] as List;
   }
 }
-

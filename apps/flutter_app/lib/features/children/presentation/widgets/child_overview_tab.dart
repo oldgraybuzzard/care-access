@@ -13,6 +13,7 @@ class ChildOverviewTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      primary: false,
       padding: const EdgeInsets.all(16),
       children: [
         // Quick Stats
