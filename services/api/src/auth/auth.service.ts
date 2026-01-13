@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
+import { MfaService } from './mfa.service';
 
 @Injectable()
 export class AuthService {
@@ -11,6 +12,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private mfaService: MfaService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -41,6 +43,34 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Check if MFA is enabled
+    if (user.mfaEnabled) {
+      // Return temporary token that requires MFA verification
+      const tempPayload = {
+        sub: user.id,
+        email: user.email,
+        mfaRequired: true,
+      };
+
+      const tempToken = this.jwtService.sign(tempPayload, {
+        expiresIn: '5m', // Short expiry for temp token
+      });
+
+      return {
+        mfaRequired: true,
+        tempToken,
+        message: 'MFA verification required',
+      };
+    }
+
+    // Normal login flow (no MFA)
+    return this.generateTokens(user);
+  }
+
+  /**
+   * Generate access and refresh tokens for a user
+   */
+  private generateTokens(user: any) {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -127,6 +157,53 @@ export class AuthService {
     await this.usersService.updatePassword(userId, newPasswordHash);
 
     return { message: 'Password changed successfully' };
+  }
+
+  /**
+   * Verify MFA token during login
+   */
+  async verifyMfaLogin(tempToken: string, token: string) {
+    let payload: any;
+
+    try {
+      payload = this.jwtService.verify(tempToken);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired temporary token');
+    }
+
+    if (!payload.mfaRequired) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    const user = await this.usersService.findById(payload.sub);
+
+    if (!user || !user.mfaEnabled) {
+      throw new UnauthorizedException('Invalid MFA configuration');
+    }
+
+    // Verify MFA token or backup code
+    let isValid = this.mfaService.verifyToken(user.mfaSecret, token);
+
+    if (!isValid) {
+      // Try backup code
+      const { valid, remainingCodes } = this.mfaService.verifyBackupCode(
+        user.mfaBackupCodes,
+        token,
+      );
+
+      if (valid) {
+        // Update backup codes (remove used code)
+        await this.usersService.updateBackupCodes(user.id, remainingCodes);
+        isValid = true;
+      }
+    }
+
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid MFA token or backup code');
+    }
+
+    // Generate full access tokens
+    return this.generateTokens(user);
   }
 }
 

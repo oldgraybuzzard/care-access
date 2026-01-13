@@ -119,6 +119,16 @@ class SettingsScreen extends ConsumerWidget {
                           context.push('/settings/change-password');
                         },
                       ),
+                      const Divider(),
+                      ListTile(
+                        leading: const Icon(Icons.security),
+                        title: const Text('Two-Factor Authentication'),
+                        subtitle: const Text('Add an extra layer of security'),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () {
+                          context.push('/mfa/setup');
+                        },
+                      ),
                     ],
                   ),
                 ),

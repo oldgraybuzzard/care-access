@@ -16,6 +16,7 @@ import { ReportsModule } from './reports/reports.module';
 import { DashboardsModule } from './dashboards/dashboards.module';
 import { AuditModule } from './audit/audit.module';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { SuperAdminModule } from './superadmin/superadmin.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { OrganizationsModule } from './organizations/organizations.module';
     AuthModule,
     UsersModule,
     OrganizationsModule,
+    SuperAdminModule,
     SearchModule,
     ClientsModule,
     CasesModule,

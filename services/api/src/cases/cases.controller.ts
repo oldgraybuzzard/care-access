@@ -2,11 +2,12 @@ import { Controller, Get, Param, Query, UseGuards, Request } from '@nestjs/commo
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { CasesService } from './cases.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RequireOrganizationGuard } from '../auth/guards/require-organization.guard';
 import { AuditService } from '../audit/audit.service';
 
 @ApiTags('cases')
 @Controller('cases')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RequireOrganizationGuard)
 @ApiBearerAuth()
 export class CasesController {
   constructor(

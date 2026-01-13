@@ -51,6 +51,15 @@ async function main() {
     },
   });
 
+  const superadminRole = await prisma.role.upsert({
+    where: { name: 'superadmin' },
+    update: {},
+    create: {
+      name: 'superadmin',
+      description: 'Platform SuperAdmin with cross-organization access',
+    },
+  });
+
   console.log('✅ Roles created');
 
   // Create admin user
@@ -82,6 +91,36 @@ async function main() {
   });
 
   console.log('✅ Admin user created (admin@fcf.org / admin123)');
+
+  // Create SuperAdmin user (no organization)
+  const superadminPasswordHash = await bcrypt.hash('SuperAdmin123!', 10);
+  const superadminUser = await prisma.user.upsert({
+    where: { email: 'admin@melkentechwork.com' },
+    update: {},
+    create: {
+      organizationId: null, // SuperAdmin has no organization
+      email: 'admin@melkentechwork.com',
+      name: 'Platform Administrator',
+      passwordHash: superadminPasswordHash,
+      isActive: true,
+    },
+  });
+
+  await prisma.userRole.upsert({
+    where: {
+      userId_roleId: {
+        userId: superadminUser.id,
+        roleId: superadminRole.id,
+      },
+    },
+    update: {},
+    create: {
+      userId: superadminUser.id,
+      roleId: superadminRole.id,
+    },
+  });
+
+  console.log('✅ SuperAdmin user created (admin@melkentechwork.com / SuperAdmin123!)');
 
   // Create vendor source
   const vendorSource = await prisma.vendorSource.upsert({
@@ -257,8 +296,12 @@ async function main() {
 
   console.log('🎉 Database seed completed successfully!');
   console.log('\n📝 Login credentials:');
+  console.log('\n   Organization Admin:');
   console.log('   Email: admin@fcf.org');
   console.log('   Password: admin123');
+  console.log('\n   Platform SuperAdmin:');
+  console.log('   Email: admin@melkentechwork.com');
+  console.log('   Password: SuperAdmin123!');
 }
 
 main()

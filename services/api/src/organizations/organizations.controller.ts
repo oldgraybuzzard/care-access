@@ -22,47 +22,44 @@ import { UpdateOrganizationDto } from './dto/update-organization.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AssignRoleDto } from './dto/assign-role.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { SuperAdminGuard } from '../auth/guards/superadmin.guard';
+import { RequireOrganizationGuard } from '../auth/guards/require-organization.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 
 @ApiTags('admin')
 @Controller('admin/organizations')
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, SuperAdminGuard)
 @ApiBearerAuth()
 export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
 
   @Post()
-  @Roles('admin')
-  @ApiOperation({ summary: 'Create a new organization (super admin only)' })
+  @ApiOperation({ summary: 'Create a new organization (SuperAdmin only)' })
   create(@Body() createOrganizationDto: CreateOrganizationDto) {
     return this.organizationsService.create(createOrganizationDto);
   }
 
   @Get()
-  @Roles('admin')
-  @ApiOperation({ summary: 'Get all organizations (super admin only)' })
+  @ApiOperation({ summary: 'Get all organizations (SuperAdmin only)' })
   findAll() {
     return this.organizationsService.findAll();
   }
 
   @Get(':id')
-  @Roles('admin')
-  @ApiOperation({ summary: 'Get organization by ID (super admin only)' })
+  @ApiOperation({ summary: 'Get organization by ID (SuperAdmin only)' })
   findOne(@Param('id') id: string) {
     return this.organizationsService.findOne(id);
   }
 
   @Get(':id/stats')
-  @Roles('admin')
-  @ApiOperation({ summary: 'Get organization statistics (super admin only)' })
+  @ApiOperation({ summary: 'Get organization statistics (SuperAdmin only)' })
   getStats(@Param('id') id: string) {
     return this.organizationsService.getStats(id);
   }
 
   @Patch(':id')
-  @Roles('admin')
-  @ApiOperation({ summary: 'Update organization (super admin only)' })
+  @ApiOperation({ summary: 'Update organization (SuperAdmin only)' })
   update(
     @Param('id') id: string,
     @Body() updateOrganizationDto: UpdateOrganizationDto,
@@ -71,8 +68,7 @@ export class OrganizationsController {
   }
 
   @Delete(':id')
-  @Roles('admin')
-  @ApiOperation({ summary: 'Delete organization (super admin only)' })
+  @ApiOperation({ summary: 'Delete organization (SuperAdmin only)' })
   remove(@Param('id') id: string) {
     return this.organizationsService.remove(id);
   }
@@ -81,7 +77,7 @@ export class OrganizationsController {
 // User-facing organization endpoints
 @ApiTags('organizations')
 @Controller('organizations')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RequireOrganizationGuard)
 @ApiBearerAuth()
 export class UserOrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}

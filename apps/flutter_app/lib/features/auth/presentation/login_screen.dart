@@ -36,13 +36,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     try {
       final authService = ref.read(authServiceProvider);
-      await authService.login(
+      final mfaResponse = await authService.login(
         _emailController.text,
         _passwordController.text,
       );
 
       if (mounted) {
-        context.go('/search');
+        // Check if MFA is required
+        if (mfaResponse != null && mfaResponse.mfaRequired) {
+          // Navigate to MFA verification screen
+          context.push('/mfa/login', extra: mfaResponse.tempToken);
+        } else {
+          // Normal login - go to search
+          context.go('/search');
+        }
       }
     } catch (e) {
       if (mounted) {

@@ -1,6 +1,6 @@
-# FCF Platform - ExtendedReach Reporting & Visualization
+# CareAccess
 
-Mobile + Web application for Friends of Children and Families to access, report, and visualize ExtendedReach case management data.
+CareAccess is a nonprofit-focused mobile and web application built for organizations that serve children and families. It provides secure, role-based access to case data, reporting, and dashboards, allowing staff and leadership to stay informed, meet compliance requirements, and make data-driven decisions—without disrupting existing case management systems.
 
 ## Architecture
 
@@ -79,8 +79,8 @@ fcf-platform/
 ## API Documentation
 
 Once the API is running, visit:
-- Swagger UI: http://localhost:3000/api
-- API Health: http://localhost:3000/health
+- Swagger UI: http://localhost:3001/api
+- API Health: http://localhost:3001/health
 
 ## Environment Variables
 
@@ -102,8 +102,16 @@ See [infra/railway.md](infra/railway.md) for Railway deployment instructions.
 
 - JWT access + refresh tokens
 - Role-based access control (RBAC)
+- Multi-tenant isolation with organization-based data segregation
+- SuperAdmin platform management (isolated from organizational data)
 - Audit logging for all data access
 - Read-only access to vendor data
+
+### Documentation
+
+- [SuperAdmin API Guide](docs/SUPERADMIN_API_GUIDE.md) - API endpoints and usage
+- [SuperAdmin Architecture](docs/SUPERADMIN_ARCHITECTURE.md) - Technical implementation details
+- [Multi-Tenant Architecture](docs/MULTI_TENANT_ARCHITECTURE.md) - Tenant isolation design
 
 ## License
 

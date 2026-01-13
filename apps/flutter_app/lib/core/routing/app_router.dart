@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/login_screen.dart';
+import '../../features/auth/presentation/mfa_setup_screen.dart';
+import '../../features/auth/presentation/mfa_verify_screen.dart';
+import '../../features/auth/presentation/mfa_login_screen.dart';
 import '../../features/search/presentation/search_screen.dart';
 import '../../features/clients/presentation/client_detail_screen.dart';
 import '../../features/cases/presentation/case_detail_screen.dart';
@@ -57,6 +60,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final authState = ref.read(authStateProvider);
       final isLoggedIn = authState.value?.isAuthenticated ?? false;
       final isLoggingIn = state.matchedLocation == '/login';
+      final isMfaRoute = state.matchedLocation.startsWith('/mfa');
+
+      // Allow MFA routes without authentication
+      if (isMfaRoute) {
+        return null;
+      }
 
       if (!isLoggedIn && !isLoggingIn) {
         return '/login';
@@ -72,6 +81,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/mfa/setup',
+        builder: (context, state) => const MfaSetupScreen(),
+      ),
+      GoRoute(
+        path: '/mfa/verify',
+        builder: (context, state) => const MfaVerifyScreen(),
+      ),
+      GoRoute(
+        path: '/mfa/login',
+        builder: (context, state) {
+          final tempToken = state.extra as String;
+          return MfaLoginScreen(tempToken: tempToken);
+        },
       ),
       GoRoute(
         path: '/search',

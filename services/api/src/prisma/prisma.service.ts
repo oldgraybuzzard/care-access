@@ -40,25 +40,46 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   /**
    * Enable tenant middleware to automatically filter queries by organizationId
+   * and set RLS session variables for database-level enforcement
    */
   private enableTenantMiddleware() {
     this.$use(async (params, next) => {
       const { model, action } = params;
 
-      // Skip if model is not tenant-scoped
+      // Get current organization ID and context
+      const organizationId = this.tenantContext.getOrganizationIdOrUndefined();
+      const context = this.tenantContext.getContext();
+
+      // Set RLS session variables for database-level enforcement
+      // This provides defense-in-depth alongside application-level filtering
+      if (organizationId) {
+        // Set organization_id for RLS policies
+        await this.$executeRawUnsafe(
+          `SET LOCAL app.organization_id = '${organizationId}'`
+        );
+        // SuperAdmins have organizationId = null, so this is always false for org users
+        await this.$executeRawUnsafe(
+          `SET LOCAL app.is_superadmin = 'false'`
+        );
+      } else {
+        // No tenant context - could be SuperAdmin or unauthenticated request
+        // RLS policies will block access to tenant data
+        await this.$executeRawUnsafe(
+          `SET LOCAL app.is_superadmin = 'true'`
+        );
+      }
+
+      // Skip application-level filtering if model is not tenant-scoped
       if (!model || !TENANT_SCOPED_MODELS.includes(model.toLowerCase())) {
         return next(params);
       }
 
-      // Get current organization ID from context
-      const organizationId = this.tenantContext.getOrganizationIdOrUndefined();
-
-      // Skip if no tenant context (e.g., seed scripts, migrations)
+      // Skip application-level filtering if no tenant context (e.g., seed scripts, migrations)
       if (!organizationId) {
         return next(params);
       }
 
-      // Handle different query types
+      // Handle different query types - application-level filtering
       if (action === 'create' || action === 'createMany') {
         // Auto-inject organizationId into create operations
         if (action === 'create') {

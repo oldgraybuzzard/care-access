@@ -79,8 +79,15 @@ model User {
   isActive       Boolean  @default(true) @map("is_active")
 
   // Multi-tenancy
-  organizationId String   @map("organization_id")
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  // NULL for SuperAdmins (platform administrators)
+  // Required for organization users
+  organizationId String?  @map("organization_id")
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  // Multi-Factor Authentication (MFA)
+  mfaEnabled     Boolean  @default(false) @map("mfa_enabled")
+  mfaSecret      String?  @map("mfa_secret")
+  mfaBackupCodes String[] @default([]) @map("mfa_backup_codes")
 
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")

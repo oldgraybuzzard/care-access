@@ -15,11 +15,12 @@ import { ChildrenService } from './children.service';
 import { CreateChildDto } from './dto/create-child.dto';
 import { UpdateChildDto } from './dto/update-child.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RequireOrganizationGuard } from '../auth/guards/require-organization.guard';
 import { AuditService } from '../audit/audit.service';
 
 @ApiTags('children')
 @Controller('children')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RequireOrganizationGuard)
 @ApiBearerAuth()
 export class ChildrenController {
   constructor(

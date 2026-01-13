@@ -156,5 +156,56 @@ export class UsersService {
       data: { passwordHash: newPasswordHash },
     });
   }
+
+  // ============================================
+  // MFA Methods
+  // ============================================
+
+  /**
+   * Store MFA secret and backup codes (MFA not enabled yet)
+   */
+  async updateMfaSecret(id: string, secret: string, backupCodes: string[]) {
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        mfaSecret: secret,
+        mfaBackupCodes: backupCodes,
+      },
+    });
+  }
+
+  /**
+   * Enable MFA for user
+   */
+  async enableMfa(id: string) {
+    await this.prisma.user.update({
+      where: { id },
+      data: { mfaEnabled: true },
+    });
+  }
+
+  /**
+   * Disable MFA for user
+   */
+  async disableMfa(id: string) {
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        mfaEnabled: false,
+        mfaSecret: null,
+        mfaBackupCodes: [],
+      },
+    });
+  }
+
+  /**
+   * Update backup codes after one is used
+   */
+  async updateBackupCodes(id: string, backupCodes: string[]) {
+    await this.prisma.user.update({
+      where: { id },
+      data: { mfaBackupCodes: backupCodes },
+    });
+  }
 }
 

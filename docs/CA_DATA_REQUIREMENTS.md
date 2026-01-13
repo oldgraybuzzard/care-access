@@ -1,8 +1,8 @@
-# Friends of Children & Families - Comprehensive Data Requirements
+# CareAccess - Comprehensive Data Requirements
 
 ## Executive Summary
 
-FCF's mission is to provide safe, nurturing environments for at-risk children and families. This document outlines the comprehensive data model needed to track every aspect of a child's journey through FCF's programs, from intake to successful outcomes.
+CareAccess's mission is to provide safe, nurturing environments for at-risk children and families. This document outlines the comprehensive data model needed to track every aspect of a child's journey through FCF's programs, from intake to successful outcomes.
 
 ## Core Philosophy
 

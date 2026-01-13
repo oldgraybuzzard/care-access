@@ -27,7 +27,7 @@
     "flutter",
     "nestjs"
   ],
-  "author": "Friends of Children and Families",
+  "author": "Melken TechWork",
   "license": "UNLICENSED",
   "devDependencies": {
     "@types/node": "^20.10.0",
