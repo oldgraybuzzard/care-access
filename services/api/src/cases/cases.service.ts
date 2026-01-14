@@ -116,7 +116,7 @@ export class CasesService {
       this.prisma.document.findMany({
         where,
         orderBy: {
-          createdAt: 'desc',
+          uploadedAt: 'desc',
         },
         skip,
         take: limit,

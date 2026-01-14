@@ -17,6 +17,8 @@ import { DashboardsModule } from './dashboards/dashboards.module';
 import { AuditModule } from './audit/audit.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { SuperAdminModule } from './superadmin/superadmin.module';
+import { StorageModule } from './storage/storage.module';
+import { DocumentsModule } from './documents/documents.module';
 
 @Module({
   imports: [
@@ -31,6 +33,7 @@ import { SuperAdminModule } from './superadmin/superadmin.module';
     ]),
     TenantModule,
     PrismaModule,
+    StorageModule,
     AuthModule,
     UsersModule,
     OrganizationsModule,
@@ -42,6 +45,7 @@ import { SuperAdminModule } from './superadmin/superadmin.module';
     ReportsModule,
     DashboardsModule,
     AuditModule,
+    DocumentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

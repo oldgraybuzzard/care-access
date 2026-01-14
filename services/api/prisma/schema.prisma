@@ -65,6 +65,7 @@ model Organization {
   reportDefinitions ReportDefinition[]
   kpiDaily         KpiDaily[]
   vendorSources    VendorSource[]
+  documents        Document[]
 
   @@index([slug])
   @@index([status])
@@ -154,12 +155,12 @@ model VendorSource {
   name           String
   createdAt      DateTime @default(now()) @map("created_at")
 
-  tokens    VendorToken[]
-  clients   Client[]
-  cases     Case[]
-  activities Activity[]
-  services  Service[]
-  documents Document[]
+  tokens          VendorToken[]
+  clients         Client[]
+  cases           Case[]
+  activities      Activity[]
+  services        Service[]
+  vendorDocuments VendorDocument[]
 
   @@unique([organizationId, name])  // Name unique per organization
   @@index([organizationId])
@@ -249,6 +250,7 @@ model Client {
   program      Program?     @relation(fields: [programId], references: [id])
   cases        Case[]
   child        Child?       // New child-centered profile
+  documents    Document[]
 
   @@unique([vendorSourceId, vendorClientId])
   @@index([organizationId])
@@ -276,14 +278,15 @@ model Case {
   createdAt         DateTime  @default(now()) @map("created_at")
   updatedAt         DateTime  @updatedAt @map("updated_at")
 
-  vendorSource VendorSource @relation(fields: [vendorSourceId], references: [id])
-  client       Client       @relation(fields: [clientId], references: [id])
-  worker       Worker?      @relation(fields: [assignedWorkerId], references: [id])
-  program      Program?     @relation(fields: [programId], references: [id])
-  activities   Activity[]
-  services     Service[]
-  documents    Document[]
-  goals        Goal[]       // Child goals linked to case
+  vendorSource     VendorSource     @relation(fields: [vendorSourceId], references: [id])
+  client           Client           @relation(fields: [clientId], references: [id])
+  worker           Worker?          @relation(fields: [assignedWorkerId], references: [id])
+  program          Program?         @relation(fields: [programId], references: [id])
+  activities       Activity[]
+  services         Service[]
+  vendorDocuments  VendorDocument[]
+  documents        Document[]       // User-uploaded documents
+  goals            Goal[]           // Child goals linked to case
 
   @@unique([vendorSourceId, vendorCaseId])
   @@index([organizationId])
@@ -339,7 +342,7 @@ model Service {
   @@map("services")
 }
 
-model Document {
+model VendorDocument {
   id                String   @id @default(uuid())
   vendorSourceId    String   @map("vendor_source_id")
   vendorDocumentId  String   @map("vendor_document_id")
@@ -356,7 +359,7 @@ model Document {
   @@unique([vendorSourceId, vendorDocumentId])
   @@index([caseId])
   @@index([docType])
-  @@map("documents")
+  @@map("vendor_documents")
 }
 
 // ============================================
@@ -435,6 +438,7 @@ model Child {
   incidents         BehavioralIncident[]
   goals             Goal[]
   notes             ChildNote[]
+  documents         Document[]
 
   @@index([organizationId])
   @@index([organizationId, status])  // Composite index for common queries
@@ -515,6 +519,7 @@ model Assessment {
 
   // Relations
   child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
+  documents         Document[]
 
   @@index([organizationId])
   @@index([childId])
@@ -852,5 +857,53 @@ model KpiDaily {
   @@index([programId])
   @@index([workerId])
   @@map("kpi_daily")
+}
+
+// ============================================
+// Document Management
+// ============================================
+
+model Document {
+  id             String   @id @default(uuid())
+
+  // Multi-tenancy
+  organizationId String   @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  // File metadata
+  filename       String   // Original filename
+  storageKey     String   @unique @map("storage_key") // R2 storage key
+  mimetype       String   // MIME type (e.g., 'image/jpeg', 'application/pdf')
+  size           Int      // File size in bytes
+
+  // Document categorization
+  category       String   // 'photo', 'medical', 'legal', 'education', 'case_note', 'report', 'import', 'other'
+  description    String?  // Optional description
+  tags           String[] @default([]) // Searchable tags
+
+  // Relationships (polymorphic - can be attached to different entities)
+  childId        String?  @map("child_id")
+  caseId         String?  @map("case_id")
+  clientId       String?  @map("client_id")
+  assessmentId   String?  @map("assessment_id")
+
+  child          Child?       @relation(fields: [childId], references: [id], onDelete: Cascade)
+  case           Case?        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  client         Client?      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessment     Assessment?  @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  // Audit
+  uploadedBy     String   @map("uploaded_by") // User ID who uploaded
+  uploadedAt     DateTime @default(now()) @map("uploaded_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@index([organizationId])
+  @@index([childId])
+  @@index([caseId])
+  @@index([clientId])
+  @@index([assessmentId])
+  @@index([category])
+  @@index([uploadedBy])
+  @@map("documents")
 }
 
