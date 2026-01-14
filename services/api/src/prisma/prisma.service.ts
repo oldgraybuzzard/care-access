@@ -46,28 +46,29 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     this.$use(async (params, next) => {
       const { model, action } = params;
 
+      // Skip middleware for raw queries to prevent infinite loops
+      if (action === 'executeRaw' || action === 'queryRaw' || action === 'runCommandRaw') {
+        return next(params);
+      }
+
       // Get current organization ID and context
       const organizationId = this.tenantContext.getOrganizationIdOrUndefined();
       const context = this.tenantContext.getContext();
 
-      // Set RLS session variables for database-level enforcement
-      // This provides defense-in-depth alongside application-level filtering
-      if (organizationId) {
-        // Set organization_id for RLS policies
-        await this.$executeRawUnsafe(
-          `SET LOCAL app.organization_id = '${organizationId}'`
-        );
-        // SuperAdmins have organizationId = null, so this is always false for org users
-        await this.$executeRawUnsafe(
-          `SET LOCAL app.is_superadmin = 'false'`
-        );
-      } else {
-        // No tenant context - could be SuperAdmin or unauthenticated request
-        // RLS policies will block access to tenant data
-        await this.$executeRawUnsafe(
-          `SET LOCAL app.is_superadmin = 'true'`
-        );
-      }
+      // NOTE: RLS session variables disabled due to infinite loop issue
+      // TODO: Implement RLS in a separate connection or transaction
+      // if (organizationId) {
+      //   await this.$executeRawUnsafe(
+      //     `SET LOCAL app.organization_id = '${organizationId}'`
+      //   );
+      //   await this.$executeRawUnsafe(
+      //     `SET LOCAL app.is_superadmin = 'false'`
+      //   );
+      // } else {
+      //   await this.$executeRawUnsafe(
+      //     `SET LOCAL app.is_superadmin = 'true'`
+      //   );
+      // }
 
       // Skip application-level filtering if model is not tenant-scoped
       if (!model || !TENANT_SCOPED_MODELS.includes(model.toLowerCase())) {

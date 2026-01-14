@@ -81,11 +81,19 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   const port = process.env.PORT || 3000;
-  await app.listen(port, '0.0.0.0');
 
-  console.log(`🚀 Care Access API running on port ${port}`);
-  console.log(`📚 API Documentation available at /api`);
+  try {
+    await app.listen(port, '0.0.0.0');
+    console.log(`🚀 Care Access API running on port ${port}`);
+    console.log(`📚 API Documentation available at /api`);
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('❌ Bootstrap failed:', error);
+  process.exit(1);
+});
 
