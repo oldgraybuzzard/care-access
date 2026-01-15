@@ -65,7 +65,6 @@ model Organization {
   reportDefinitions ReportDefinition[]
   kpiDaily         KpiDaily[]
   vendorSources    VendorSource[]
-  documents        Document[]
 
   @@index([slug])
   @@index([status])
@@ -161,6 +160,7 @@ model VendorSource {
   activities      Activity[]
   services        Service[]
   vendorDocuments VendorDocument[]
+  documents       Document[]
 
   @@unique([organizationId, name])  // Name unique per organization
   @@index([organizationId])
@@ -250,7 +250,6 @@ model Client {
   program      Program?     @relation(fields: [programId], references: [id])
   cases        Case[]
   child        Child?       // New child-centered profile
-  documents    Document[]
 
   @@unique([vendorSourceId, vendorClientId])
   @@index([organizationId])
@@ -438,7 +437,6 @@ model Child {
   incidents         BehavioralIncident[]
   goals             Goal[]
   notes             ChildNote[]
-  documents         Document[]
 
   @@index([organizationId])
   @@index([organizationId, status])  // Composite index for common queries
@@ -519,7 +517,6 @@ model Assessment {
 
   // Relations
   child             Child    @relation(fields: [childId], references: [id], onDelete: Cascade)
-  documents         Document[]
 
   @@index([organizationId])
   @@index([childId])
@@ -863,47 +860,24 @@ model KpiDaily {
 // Document Management
 // ============================================
 
+// TODO: This model needs to be updated to match the new document structure
+// Current database has: vendor_source_id, vendor_document_id, case_id, title, doc_type, meta_json
+// Desired structure: organizationId, filename, storageKey, mimetype, size, category, etc.
+// Need to create migration to update the table structure
 model Document {
-  id             String   @id @default(uuid())
+  id                 String       @id @default(uuid())
+  vendorSourceId     String       @map("vendor_source_id")
+  vendorDocumentId   String       @map("vendor_document_id")
+  caseId             String       @map("case_id")
+  title              String
+  docType            String       @map("doc_type")
+  metaJson           Json?        @map("meta_json")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
 
-  // Multi-tenancy
-  organizationId String   @map("organization_id")
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  vendorSource       VendorSource @relation(fields: [vendorSourceId], references: [id])
+  case               Case         @relation(fields: [caseId], references: [id])
 
-  // File metadata
-  filename       String   // Original filename
-  storageKey     String   @unique @map("storage_key") // R2 storage key
-  mimetype       String   // MIME type (e.g., 'image/jpeg', 'application/pdf')
-  size           Int      // File size in bytes
-
-  // Document categorization
-  category       String   // 'photo', 'medical', 'legal', 'education', 'case_note', 'report', 'import', 'other'
-  description    String?  // Optional description
-  tags           String[] @default([]) // Searchable tags
-
-  // Relationships (polymorphic - can be attached to different entities)
-  childId        String?  @map("child_id")
-  caseId         String?  @map("case_id")
-  clientId       String?  @map("client_id")
-  assessmentId   String?  @map("assessment_id")
-
-  child          Child?       @relation(fields: [childId], references: [id], onDelete: Cascade)
-  case           Case?        @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  client         Client?      @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  assessment     Assessment?  @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-
-  // Audit
-  uploadedBy     String   @map("uploaded_by") // User ID who uploaded
-  uploadedAt     DateTime @default(now()) @map("uploaded_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
-
-  @@index([organizationId])
-  @@index([childId])
-  @@index([caseId])
-  @@index([clientId])
-  @@index([assessmentId])
-  @@index([category])
-  @@index([uploadedBy])
   @@map("documents")
 }
 

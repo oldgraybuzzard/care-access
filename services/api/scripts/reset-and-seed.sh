@@ -55,8 +55,8 @@ echo -e "${GREEN}✅ Seed complete${NC}"
 echo ""
 
 echo -e "${BLUE}📊 Step 3: Verifying data...${NC}"
-npx prisma db execute --stdin <<SQL
-SELECT 
+npx prisma db execute --schema=./prisma/schema.prisma --stdin <<SQL
+SELECT
     'Organizations' as table_name, COUNT(*)::text as count FROM organizations
 UNION ALL
 SELECT 'Users', COUNT(*)::text FROM users
