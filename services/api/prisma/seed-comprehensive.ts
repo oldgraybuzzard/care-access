@@ -136,6 +136,7 @@ async function main() {
   // Create users for each organization
   console.log('👥 Creating users...');
   const users = [];
+  let userCounter = 0;
 
   for (const org of organizations) {
     // Admin user
@@ -158,11 +159,12 @@ async function main() {
       const gender = Math.random() > 0.5 ? 'male' : 'female';
       const firstName = randomItem(firstNames[gender]);
       const lastName = randomItem(lastNames);
+      userCounter++;
 
       const user = await prisma.user.create({
         data: {
           organizationId: org.id,
-          email: generateEmail(firstName, lastName, `${org.slug}.com`),
+          email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}.${userCounter}@${org.slug}.com`,
           name: `${firstName} ${lastName}`,
           passwordHash,
           isActive: Math.random() > 0.1, // 90% active
@@ -177,7 +179,6 @@ async function main() {
   console.log('👨‍👩‍👧‍👦 Creating families and children...');
   let totalFamilies = 0;
   let totalChildren = 0;
-  let totalDocuments = 0;
 
   for (const org of organizations) {
     const familyCount = randomAge(15, 25); // 15-25 families per org
@@ -287,47 +288,42 @@ async function main() {
           });
         }
 
-        // Create documents (2-8 per child)
-        const docCount = randomAge(2, 8);
-        for (let d = 0; d < docCount; d++) {
-          const category = randomItem(['photo', 'medical', 'legal', 'education', 'case_note', 'report', 'other']);
-          const mimeType = randomItem(['application/pdf', 'image/jpeg', 'image/png']);
-          const ext = mimeType === 'application/pdf' ? 'pdf' : mimeType === 'image/jpeg' ? 'jpg' : 'png';
-
-          await prisma.document.create({
-            data: {
-              organizationId: org.id,
-              childId: child.id,
-              filename: `${category}-${childFirstName}-${d}.${ext}`,
-              storageKey: `test-documents/${org.slug}/${child.id}/${Date.now()}-${d}.${ext}`,
-              mimetype: mimeType,
-              size: randomAge(50000, 5000000),
-              category: category,
-              description: `${category.charAt(0).toUpperCase() + category.slice(1)} document for ${childFirstName}`,
-              tags: randomItems(['important', 'reviewed', 'archived', 'pending'], randomAge(0, 2)),
-              uploadedBy: users.find(u => u.organizationId === org.id)?.id || users[0].id,
-            },
-          });
-          totalDocuments++;
-        }
+        // TODO: Create documents once Document model migration is complete
+        // The Document model in schema.prisma doesn't match the database structure yet
+        // Skip document creation for now
       }
     }
   }
 
   console.log(`✅ Created ${totalFamilies} families`);
-  console.log(`✅ Created ${totalChildren} children`);
-  console.log(`✅ Created ${totalDocuments} documents\n`);
+  console.log(`✅ Created ${totalChildren} children\n`);
 
   // Create programs
   console.log('📚 Creating programs...');
   let totalPrograms = 0;
   for (const org of organizations) {
     const programCount = randomAge(5, 10);
+    const usedNames = new Set<string>();
+
     for (let p = 0; p < programCount; p++) {
+      let programName: string;
+      let attempts = 0;
+
+      // Generate unique program name for this org
+      do {
+        const programType = randomItem(programTypes);
+        const city = randomItem(cities);
+        const suffix = attempts > 0 ? ` ${attempts}` : '';
+        programName = `${programType} - ${city}${suffix}`;
+        attempts++;
+      } while (usedNames.has(programName) && attempts < 50);
+
+      usedNames.add(programName);
+
       await prisma.program.create({
         data: {
           organizationId: org.id,
-          name: `${randomItem(programTypes)} ${p + 1}`,
+          name: programName,
         },
       });
       totalPrograms++;
@@ -407,7 +403,6 @@ async function main() {
   console.log(`   Users: ${users.length}`);
   console.log(`   Families: ${totalFamilies}`);
   console.log(`   Children: ${totalChildren}`);
-  console.log(`   Documents: ${totalDocuments}`);
   console.log(`   Programs: ${totalPrograms}`);
   console.log(`   Vendor Sources: ${totalVendors}`);
   console.log(`   Report Definitions: ${totalReports}`);
@@ -427,9 +422,8 @@ async function main() {
   console.log('💡 TESTING TIPS:');
   console.log('   • Each organization has 15-25 families');
   console.log('   • Each family has 1-4 children');
-  console.log('   • Each child has 2-8 documents');
   console.log('   • 60% of children have mental health diagnoses');
-  console.log('   • Documents are in various categories');
+  console.log('   • Children have education records with grades and attendance');
   console.log('   • Use different org logins to test multi-tenancy\n');
 
   console.log('🧪 NEXT STEPS:');
