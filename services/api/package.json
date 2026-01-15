@@ -26,6 +26,8 @@
     "prisma:seed:multi": "ts-node prisma/seed-multi-tenant.ts",
     "prisma:seed:production": "ts-node prisma/seed-production.ts",
     "prisma:seed:superadmin": "ts-node prisma/seed-superadmin.ts",
+    "prisma:seed:comprehensive": "ts-node prisma/seed-comprehensive.ts",
+    "seed:comprehensive": "npm run prisma:seed:comprehensive",
     "verify:rls": "node scripts/verify-rls.js"
   },
   "prisma": {
