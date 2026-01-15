@@ -1,8 +1,8 @@
 {
   "name": "@fcf/api",
   "version": "1.0.0",
-  "description": "FCF Platform API Service",
-  "author": "Friends of Children and Families",
+  "description": "CareAccess API Service",
+  "author": "Melken TechWork",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
