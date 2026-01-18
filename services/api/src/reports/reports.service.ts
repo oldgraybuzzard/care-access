@@ -252,10 +252,13 @@ export class ReportsService {
     const startDate = filters?.startDate ? new Date(filters.startDate) : new Date(new Date().setMonth(new Date().getMonth() - 1));
     const endDate = filters?.endDate ? new Date(filters.endDate) : new Date();
 
+    // Service doesn't have organizationId, so we need to filter through Case
     return this.prisma.service.groupBy({
       by: ['serviceType'],
       where: {
-        organizationId,
+        case: {
+          organizationId,
+        },
         startAt: {
           gte: startDate,
           lte: endDate,
