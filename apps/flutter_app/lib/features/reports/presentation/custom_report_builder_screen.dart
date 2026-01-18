@@ -20,6 +20,18 @@ class _CustomReportBuilderScreenState
     {'value': 'cases', 'label': 'Cases', 'icon': '📁'},
     {'value': 'activities', 'label': 'Activities', 'icon': '📝'},
     {'value': 'services', 'label': 'Services', 'icon': '🔧'},
+    {'value': 'children', 'label': 'Children', 'icon': '👶'},
+    {'value': 'education', 'label': 'Education', 'icon': '📚'},
+    {
+      'value': 'behavioral_incidents',
+      'label': 'Behavioral Incidents',
+      'icon': '⚠️'
+    },
+    {'value': 'goals', 'label': 'Goals & Progress', 'icon': '🎯'},
+    {'value': 'assessments', 'label': 'Assessments', 'icon': '📋'},
+    {'value': 'medical_records', 'label': 'Medical Records', 'icon': '🏥'},
+    {'value': 'home_visits', 'label': 'Home Visits', 'icon': '🏠'},
+    {'value': 'families', 'label': 'Families', 'icon': '👨‍👩‍👧‍👦'},
   ];
 
   DateTime? _startDate;
@@ -39,11 +51,13 @@ class _CustomReportBuilderScreenState
 
     try {
       final result = await ref.read(
-        runCustomReportProvider((
-          dataset: state.dataset!,
-          filters: state.filters,
-          groupBy: state.groupBy,
-        ),).future,
+        runCustomReportProvider(
+          (
+            dataset: state.dataset!,
+            filters: state.filters,
+            groupBy: state.groupBy,
+          ),
+        ).future,
       );
 
       if (mounted) {
@@ -144,7 +158,9 @@ class _CustomReportBuilderScreenState
                       const Text(
                         '2. Add Filters (Optional)',
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold,),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       if (state.filters.isNotEmpty)
                         TextButton(
