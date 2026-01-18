@@ -8,9 +8,10 @@ export class ReportsService {
   constructor(private prisma: PrismaService) {}
 
   // Get all report definitions
-  async getDefinitions() {
+  async getDefinitions(organizationId: string) {
     return this.prisma.reportDefinition.findMany({
       where: {
+        organizationId,
         OR: [
           { type: 'standard' },
           { isShared: true },
@@ -23,12 +24,17 @@ export class ReportsService {
   }
 
   // Run a standard report
-  async runStandardReport(dto: RunReportDto, userId: string) {
+  async runStandardReport(dto: RunReportDto, userId: string, organizationId: string) {
     const definition = await this.prisma.reportDefinition.findUnique({
       where: { id: dto.reportDefinitionId },
     });
 
     if (!definition) {
+      throw new NotFoundException('Report definition not found');
+    }
+
+    // Verify the report belongs to the user's organization
+    if (definition.organizationId !== organizationId) {
       throw new NotFoundException('Report definition not found');
     }
 
@@ -45,22 +51,22 @@ export class ReportsService {
     try {
       // Execute the report based on type
       let data: any[];
-      
+
       switch (definition.name) {
         case 'Caseload by Worker':
-          data = await this.getCaseloadByWorker(dto.filters);
+          data = await this.getCaseloadByWorker(organizationId, dto.filters);
           break;
         case 'Active Cases by Program/Status':
-          data = await this.getActiveCasesByProgramStatus(dto.filters);
+          data = await this.getActiveCasesByProgramStatus(organizationId, dto.filters);
           break;
         case 'Intakes vs Closures Trend':
-          data = await this.getIntakesVsClosuresTrend(dto.filters);
+          data = await this.getIntakesVsClosuresTrend(organizationId, dto.filters);
           break;
         case 'Overdue/Compliance List':
-          data = await this.getOverdueComplianceList(dto.filters);
+          data = await this.getOverdueComplianceList(organizationId, dto.filters);
           break;
         case 'Services Delivered by Period':
-          data = await this.getServicesDeliveredByPeriod(dto.filters);
+          data = await this.getServicesDeliveredByPeriod(organizationId, dto.filters);
           break;
         default:
           throw new BadRequestException('Unknown report type');
@@ -179,10 +185,11 @@ export class ReportsService {
   }
 
   // Standard Report Implementations
-  private async getCaseloadByWorker(filters: any) {
+  private async getCaseloadByWorker(organizationId: string, filters: any) {
     return this.prisma.case.groupBy({
       by: ['assignedWorkerId'],
       where: {
+        organizationId,
         status: 'active',
         ...(filters?.programId && { programId: filters.programId }),
       },
@@ -192,10 +199,11 @@ export class ReportsService {
     });
   }
 
-  private async getActiveCasesByProgramStatus(filters: any) {
+  private async getActiveCasesByProgramStatus(organizationId: string, filters: any) {
     return this.prisma.case.groupBy({
       by: ['programId', 'status'],
       where: {
+        organizationId,
         ...(filters?.programId && { programId: filters.programId }),
       },
       _count: {
@@ -204,7 +212,7 @@ export class ReportsService {
     });
   }
 
-  private async getIntakesVsClosuresTrend(filters: any): Promise<any[]> {
+  private async getIntakesVsClosuresTrend(organizationId: string, filters: any): Promise<any[]> {
     // This would typically use KpiDaily table for better performance
     const startDate = filters?.startDate ? new Date(filters.startDate) : new Date(new Date().setMonth(new Date().getMonth() - 6));
     const endDate = filters?.endDate ? new Date(filters.endDate) : new Date();
@@ -215,7 +223,8 @@ export class ReportsService {
         COUNT(*) FILTER (WHERE opened_at IS NOT NULL) as intakes,
         COUNT(*) FILTER (WHERE closed_at IS NOT NULL) as closures
       FROM cases
-      WHERE opened_at >= ${startDate} AND opened_at <= ${endDate}
+      WHERE organization_id = ${organizationId}
+        AND opened_at >= ${startDate} AND opened_at <= ${endDate}
       GROUP BY month
       ORDER BY month
     `;
@@ -223,10 +232,11 @@ export class ReportsService {
     return result as any[];
   }
 
-  private async getOverdueComplianceList(filters: any) {
+  private async getOverdueComplianceList(organizationId: string, filters: any) {
     // Placeholder - would need business logic for "overdue" definition
     return this.prisma.case.findMany({
       where: {
+        organizationId,
         status: 'active',
         // Add overdue logic here based on business rules
       },
@@ -238,13 +248,14 @@ export class ReportsService {
     });
   }
 
-  private async getServicesDeliveredByPeriod(filters: any) {
+  private async getServicesDeliveredByPeriod(organizationId: string, filters: any) {
     const startDate = filters?.startDate ? new Date(filters.startDate) : new Date(new Date().setMonth(new Date().getMonth() - 1));
     const endDate = filters?.endDate ? new Date(filters.endDate) : new Date();
 
     return this.prisma.service.groupBy({
       by: ['serviceType'],
       where: {
+        organizationId,
         startAt: {
           gte: startDate,
           lte: endDate,

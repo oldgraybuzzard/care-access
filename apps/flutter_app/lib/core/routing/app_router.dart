@@ -22,6 +22,7 @@ import '../../features/settings/presentation/user_management_screen.dart';
 import '../../features/settings/presentation/about_screen.dart';
 import '../../features/settings/presentation/policies_screen.dart';
 import '../../features/admin/presentation/admin_organizations_screen.dart';
+import '../../features/admin/presentation/superadmin_dashboard_screen.dart';
 import '../providers/auth_provider.dart';
 
 /// Notifier that listens to auth state changes and notifies GoRouter
@@ -59,8 +60,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final authState = ref.read(authStateProvider);
       final isLoggedIn = authState.value?.isAuthenticated ?? false;
+      final user = authState.value?.user;
       final isLoggingIn = state.matchedLocation == '/login';
       final isMfaRoute = state.matchedLocation.startsWith('/mfa');
+      final isSuperAdmin = user?.isSuperAdmin ?? false;
 
       // Allow MFA routes without authentication
       if (isMfaRoute) {
@@ -72,6 +75,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       }
 
       if (isLoggedIn && isLoggingIn) {
+        // Redirect SuperAdmins to their dashboard, org users to search
+        if (isSuperAdmin) {
+          return '/admin/dashboard';
+        }
+        return '/search';
+      }
+
+      // Block SuperAdmins from accessing org-specific routes
+      if (isLoggedIn && isSuperAdmin) {
+        final orgRoutes = [
+          '/search',
+          '/children',
+          '/clients',
+          '/cases',
+          '/reports',
+          '/dashboard',
+        ];
+
+        // Check if current route starts with any org-specific route
+        if (orgRoutes.any((route) => state.matchedLocation.startsWith(route))) {
+          return '/admin/dashboard';
+        }
+      }
+
+      // Block org users from accessing SuperAdmin routes
+      if (isLoggedIn &&
+          !isSuperAdmin &&
+          state.matchedLocation.startsWith('/admin')) {
         return '/search';
       }
 
@@ -176,6 +207,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/settings/about',
         builder: (context, state) => const AboutScreen(),
+      ),
+      GoRoute(
+        path: '/admin/dashboard',
+        builder: (context, state) => const SuperAdminDashboardScreen(),
       ),
       GoRoute(
         path: '/admin/organizations',

@@ -30,11 +30,11 @@ class AppConfig {
   );
 
   /// Get current configuration based on environment variable
-  /// Falls back to production (easier for testing without local API)
+  /// Falls back to development for local testing
   static AppConfig get current {
     const env = String.fromEnvironment(
       'ENVIRONMENT',
-      defaultValue: 'production',
+      defaultValue: 'development',
     );
 
     // Allow override via API_BASE_URL environment variable

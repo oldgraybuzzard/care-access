@@ -256,19 +256,19 @@ class SettingsScreen extends ConsumerWidget {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      ListTile(
-                        leading: const Icon(Icons.dark_mode),
-                        title: const Text('Dark Mode'),
-                        subtitle: const Text('Coming soon'),
+                      const ListTile(
+                        leading: Icon(Icons.dark_mode),
+                        title: Text('Dark Mode'),
+                        subtitle: Text('Coming soon'),
                         trailing: Switch(
                           value: false,
                           onChanged: null, // Disabled for now
                         ),
                       ),
-                      ListTile(
-                        leading: const Icon(Icons.notifications),
-                        title: const Text('Notifications'),
-                        subtitle: const Text('Coming soon'),
+                      const ListTile(
+                        leading: Icon(Icons.notifications),
+                        title: Text('Notifications'),
+                        subtitle: Text('Coming soon'),
                         trailing: Switch(
                           value: true,
                           onChanged: null, // Disabled for now
@@ -278,7 +278,7 @@ class SettingsScreen extends ConsumerWidget {
                         leading: const Icon(Icons.policy),
                         title: const Text(AppStrings.policies),
                         subtitle: const Text(
-                            'Data ethics framework and user access policy'),
+                            'Data ethics framework and user access policy',),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           context.push('/settings/policies');

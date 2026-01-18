@@ -186,31 +186,31 @@ class CareAccessTheme {
       headlineLarge: TextStyle(
           fontSize: 30,
           fontWeight: FontWeight.w700,
-          color: CareAccessColors.navy),
+          color: CareAccessColors.navy,),
       headlineMedium: TextStyle(
           fontSize: 24,
           fontWeight: FontWeight.w700,
-          color: CareAccessColors.navy),
+          color: CareAccessColors.navy,),
       titleLarge: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w700,
-          color: CareAccessColors.navy),
+          color: CareAccessColors.navy,),
       titleMedium: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          color: CareAccessColors.navy),
+          color: CareAccessColors.navy,),
       bodyLarge: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w400,
-          color: CareAccessColors.navy),
+          color: CareAccessColors.navy,),
       bodyMedium: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w400,
-          color: CareAccessColors.navy),
+          color: CareAccessColors.navy,),
       labelLarge: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: CareAccessColors.navy),
+          color: CareAccessColors.navy,),
     );
   }
 
@@ -218,19 +218,19 @@ class CareAccessTheme {
     // Dark mode text theme with lighter colors
     return const TextTheme(
       headlineLarge: TextStyle(
-          fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white),
+          fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white,),
       headlineMedium: TextStyle(
-          fontSize: 24, fontWeight: FontWeight.w700, color: Colors.white),
+          fontSize: 24, fontWeight: FontWeight.w700, color: Colors.white,),
       titleLarge: TextStyle(
-          fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white),
+          fontSize: 18, fontWeight: FontWeight.w700, color: Colors.white,),
       titleMedium: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+          fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white,),
       bodyLarge: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.w400, color: Colors.white),
+          fontSize: 16, fontWeight: FontWeight.w400, color: Colors.white,),
       bodyMedium: TextStyle(
-          fontSize: 14, fontWeight: FontWeight.w400, color: Colors.white70),
+          fontSize: 14, fontWeight: FontWeight.w400, color: Colors.white70,),
       labelLarge: TextStyle(
-          fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+          fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white,),
     );
   }
 }

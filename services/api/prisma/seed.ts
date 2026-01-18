@@ -9,7 +9,7 @@ async function main() {
   // Create the default FCF organization
   const FCF_ORG_ID = 'fcf-default-org-id';
 
-  const organization = await prisma.organization.upsert({
+  const fcfOrganization = await prisma.organization.upsert({
     where: { id: FCF_ORG_ID },
     update: {},
     create: {
@@ -21,7 +21,19 @@ async function main() {
     },
   });
 
-  console.log('✅ Organization created');
+  // Create CareAccess Demo organization
+  const demoOrganization = await prisma.organization.upsert({
+    where: { slug: 'careaccess-demo' },
+    update: {},
+    create: {
+      name: 'CareAccess Demo Organization',
+      slug: 'careaccess-demo',
+      plan: 'enterprise',
+      status: 'active',
+    },
+  });
+
+  console.log('✅ Organizations created');
 
   // Create roles
   const adminRole = await prisma.role.upsert({
@@ -91,6 +103,36 @@ async function main() {
   });
 
   console.log('✅ Admin user created (admin@fcf.org / admin123)');
+
+  // Create admin user for CareAccess Demo
+  const demoPasswordHash = await bcrypt.hash('password123', 10);
+  const demoAdminUser = await prisma.user.upsert({
+    where: { email: 'admin@careaccess-demo.com' },
+    update: {},
+    create: {
+      organizationId: demoOrganization.id,
+      email: 'admin@careaccess-demo.com',
+      name: 'Demo Admin User',
+      passwordHash: demoPasswordHash,
+      isActive: true,
+    },
+  });
+
+  await prisma.userRole.upsert({
+    where: {
+      userId_roleId: {
+        userId: demoAdminUser.id,
+        roleId: adminRole.id,
+      },
+    },
+    update: {},
+    create: {
+      userId: demoAdminUser.id,
+      roleId: adminRole.id,
+    },
+  });
+
+  console.log('✅ Demo admin user created (admin@careaccess-demo.com / password123)');
 
   // Create SuperAdmin user (no organization)
   const superadminPasswordHash = await bcrypt.hash('SuperAdmin123!', 10);
@@ -218,87 +260,68 @@ async function main() {
 
   console.log('✅ Workers created');
 
-  // Create standard report definitions
-  const reportDefinitions = await Promise.all([
-    prisma.reportDefinition.upsert({
-      where: { id: 'caseload-by-worker' },
-      update: {},
-      create: {
-        id: 'caseload-by-worker',
-        organizationId: FCF_ORG_ID,
-        name: 'Caseload by Worker',
-        type: 'standard',
-        definitionJson: {
-          description: 'Shows active caseload grouped by worker',
-        },
-        isShared: true,
-      },
-    }),
-    prisma.reportDefinition.upsert({
-      where: { id: 'active-cases-by-program' },
-      update: {},
-      create: {
-        id: 'active-cases-by-program',
-        organizationId: FCF_ORG_ID,
-        name: 'Active Cases by Program/Status',
-        type: 'standard',
-        definitionJson: {
-          description: 'Shows active cases grouped by program and status',
-        },
-        isShared: true,
-      },
-    }),
-    prisma.reportDefinition.upsert({
-      where: { id: 'intakes-vs-closures' },
-      update: {},
-      create: {
-        id: 'intakes-vs-closures',
-        organizationId: FCF_ORG_ID,
-        name: 'Intakes vs Closures Trend',
-        type: 'standard',
-        definitionJson: {
-          description: 'Monthly trend of intakes vs closures',
-        },
-        isShared: true,
-      },
-    }),
-    prisma.reportDefinition.upsert({
-      where: { id: 'overdue-compliance' },
-      update: {},
-      create: {
-        id: 'overdue-compliance',
-        organizationId: FCF_ORG_ID,
-        name: 'Overdue/Compliance List',
-        type: 'standard',
-        definitionJson: {
-          description: 'List of cases with overdue items or compliance issues',
-        },
-        isShared: true,
-      },
-    }),
-    prisma.reportDefinition.upsert({
-      where: { id: 'services-delivered' },
-      update: {},
-      create: {
-        id: 'services-delivered',
-        organizationId: FCF_ORG_ID,
-        name: 'Services Delivered by Period',
-        type: 'standard',
-        definitionJson: {
-          description: 'Services delivered grouped by type and period',
-        },
-        isShared: true,
-      },
-    }),
-  ]);
+  // Create standard report definitions for both organizations
+  const reportTypes = [
+    {
+      id: 'caseload-by-worker',
+      name: 'Caseload by Worker',
+      description: 'Shows active caseload grouped by worker',
+    },
+    {
+      id: 'active-cases-by-program',
+      name: 'Active Cases by Program/Status',
+      description: 'Shows active cases grouped by program and status',
+    },
+    {
+      id: 'intakes-vs-closures',
+      name: 'Intakes vs Closures Trend',
+      description: 'Monthly trend of intakes vs closures',
+    },
+    {
+      id: 'overdue-compliance',
+      name: 'Overdue/Compliance List',
+      description: 'List of cases with overdue items or compliance issues',
+    },
+    {
+      id: 'services-delivered',
+      name: 'Services Delivered by Period',
+      description: 'Services delivered grouped by type and period',
+    },
+  ];
 
-  console.log('✅ Report definitions created');
+  const organizations = [fcfOrganization, demoOrganization];
+  const reportDefinitions = [];
+
+  for (const org of organizations) {
+    for (const reportType of reportTypes) {
+      const report = await prisma.reportDefinition.upsert({
+        where: { id: `${reportType.id}-${org.id}` },
+        update: {},
+        create: {
+          id: `${reportType.id}-${org.id}`,
+          organizationId: org.id,
+          name: reportType.name,
+          type: 'standard',
+          definitionJson: {
+            description: reportType.description,
+          },
+          isShared: true,
+        },
+      });
+      reportDefinitions.push(report);
+    }
+  }
+
+  console.log(`✅ Report definitions created (${reportDefinitions.length} reports for ${organizations.length} organizations)`);
 
   console.log('🎉 Database seed completed successfully!');
   console.log('\n📝 Login credentials:');
-  console.log('\n   Organization Admin:');
+  console.log('\n   FCF Organization Admin:');
   console.log('   Email: admin@fcf.org');
   console.log('   Password: admin123');
+  console.log('\n   CareAccess Demo Admin:');
+  console.log('   Email: admin@careaccess-demo.com');
+  console.log('   Password: password123');
   console.log('\n   Platform SuperAdmin:');
   console.log('   Email: admin@melkentechwork.com');
   console.log('   Password: SuperAdmin123!');

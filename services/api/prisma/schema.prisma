@@ -159,7 +159,6 @@ model VendorSource {
   cases           Case[]
   activities      Activity[]
   services        Service[]
-  vendorDocuments VendorDocument[]
   documents       Document[]
 
   @@unique([organizationId, name])  // Name unique per organization
@@ -283,7 +282,6 @@ model Case {
   program          Program?         @relation(fields: [programId], references: [id])
   activities       Activity[]
   services         Service[]
-  vendorDocuments  VendorDocument[]
   documents        Document[]       // User-uploaded documents
   goals            Goal[]           // Child goals linked to case
 
@@ -341,25 +339,7 @@ model Service {
   @@map("services")
 }
 
-model VendorDocument {
-  id                String   @id @default(uuid())
-  vendorSourceId    String   @map("vendor_source_id")
-  vendorDocumentId  String   @map("vendor_document_id")
-  caseId            String   @map("case_id")
-  title             String
-  docType           String   @map("doc_type")
-  metaJson          Json?    @map("meta_json")
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt @map("updated_at")
 
-  vendorSource VendorSource @relation(fields: [vendorSourceId], references: [id])
-  case         Case         @relation(fields: [caseId], references: [id], onDelete: Cascade)
-
-  @@unique([vendorSourceId, vendorDocumentId])
-  @@index([caseId])
-  @@index([docType])
-  @@map("vendor_documents")
-}
 
 // ============================================
 // Child-Centered Case Management

@@ -21,14 +21,18 @@ export class ReportsController {
 
   @Get('definitions')
   @ApiOperation({ summary: 'Get all available report definitions' })
-  async getDefinitions() {
-    return this.reportsService.getDefinitions();
+  async getDefinitions(@Request() req) {
+    return this.reportsService.getDefinitions(req.user.organizationId);
   }
 
   @Post('run')
   @ApiOperation({ summary: 'Run a standard report' })
   async runReport(@Request() req, @Body() runReportDto: RunReportDto) {
-    const result = await this.reportsService.runStandardReport(runReportDto, req.user.userId);
+    const result = await this.reportsService.runStandardReport(
+      runReportDto,
+      req.user.userId,
+      req.user.organizationId,
+    );
 
     // Audit log
     await this.auditService.log({

@@ -9,6 +9,7 @@
 ///
 /// SvgPicture.asset(BrandAssets.icon, height: 48);
 /// ```
+library;
 
 class BrandAssets {
   BrandAssets._(); // Private constructor to prevent instantiation

@@ -225,14 +225,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       if (clientCount > 0)
                         Chip(
                           label: Text(
-                              '$clientCount Client${clientCount == 1 ? '' : 's'}'),
+                              '$clientCount Client${clientCount == 1 ? '' : 's'}',),
                           avatar: const Icon(Icons.person, size: 16),
                           visualDensity: VisualDensity.compact,
                         ),
                       if (childCount > 0)
                         Chip(
                           label: Text(
-                              '$childCount Child${childCount == 1 ? '' : 'ren'}'),
+                              '$childCount Child${childCount == 1 ? '' : 'ren'}',),
                           avatar: const Icon(Icons.child_care, size: 16),
                           visualDensity: VisualDensity.compact,
                         ),

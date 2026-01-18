@@ -123,7 +123,7 @@ class _AdminOrganizationsScreenState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Icons.error_outline,
-                        size: 48, color: Colors.red),
+                        size: 48, color: Colors.red,),
                     const SizedBox(height: 16),
                     Text('Error: $error'),
                     const SizedBox(height: 16),
@@ -237,7 +237,7 @@ class _OrganizationCard extends StatelessWidget {
               Row(
                 children: [
                   Icon(Icons.workspace_premium,
-                      size: 16, color: colorScheme.primary),
+                      size: 16, color: colorScheme.primary,),
                   const SizedBox(width: 4),
                   Text(
                     'Plan: ${organization.plan.toUpperCase()}',

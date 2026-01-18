@@ -6,6 +6,7 @@
 /// - Calm, supportive, and non-technical
 /// - Appropriate for nonprofits, boards, auditors, and funders
 /// - Avoids jargon and "enterprise software" tone
+library;
 
 class AppStrings {
   // ========================================

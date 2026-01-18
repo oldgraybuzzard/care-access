@@ -32,4 +32,15 @@ class User {
       'organizationId': organizationId,
     };
   }
+
+  /// Check if user is a SuperAdmin (platform administrator)
+  /// SuperAdmins have 'superadmin' role and NO organizationId
+  bool get isSuperAdmin =>
+      roles.contains('superadmin') && organizationId.isEmpty;
+
+  /// Check if user is an organization admin
+  bool get isOrgAdmin => roles.contains('admin') && organizationId.isNotEmpty;
+
+  /// Check if user belongs to an organization
+  bool get hasOrganization => organizationId.isNotEmpty;
 }

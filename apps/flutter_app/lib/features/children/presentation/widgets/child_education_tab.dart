@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../../core/models/child.dart';
 
 class ChildEducationTab extends StatelessWidget {

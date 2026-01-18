@@ -73,7 +73,7 @@ class _MfaSetupScreenState extends ConsumerState<MfaSetupScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.error_outline,
-                          size: 64, color: colorScheme.error),
+                          size: 64, color: colorScheme.error,),
                       const SizedBox(height: 16),
                       Text('Error: $_error'),
                       const SizedBox(height: 16),
@@ -171,7 +171,7 @@ class _MfaSetupScreenState extends ConsumerState<MfaSetupScreen> {
                                   children: _setupData?.backupCodes.map((code) {
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              vertical: 4),
+                                              vertical: 4,),
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
@@ -186,7 +186,7 @@ class _MfaSetupScreenState extends ConsumerState<MfaSetupScreen> {
                                               ),
                                               IconButton(
                                                 icon: const Icon(Icons.copy,
-                                                    size: 18),
+                                                    size: 18,),
                                                 onPressed: () =>
                                                     _copyBackupCode(code),
                                                 tooltip: 'Copy code',
@@ -214,7 +214,7 @@ class _MfaSetupScreenState extends ConsumerState<MfaSetupScreen> {
                         child: Row(
                           children: [
                             Icon(Icons.warning_amber,
-                                color: colorScheme.onErrorContainer),
+                                color: colorScheme.onErrorContainer,),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(

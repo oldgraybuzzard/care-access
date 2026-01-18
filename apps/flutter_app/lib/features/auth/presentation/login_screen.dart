@@ -181,15 +181,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               : const Text(AppStrings.loginButton),
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          'Demo: admin@fcf.org / admin123',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(
-                                color: colorScheme.onSurface.withOpacity(0.5),
-                              ),
-                          textAlign: TextAlign.center,
+                        Column(
+                          children: [
+                            Text(
+                              'Demo Credentials:',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color:
+                                        colorScheme.onSurface.withOpacity(0.6),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'admin@fcf.org / admin123',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color:
+                                        colorScheme.onSurface.withOpacity(0.5),
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              'admin@careaccess-demo.com / password123',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color:
+                                        colorScheme.onSurface.withOpacity(0.5),
+                                  ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
                       ],
                     ),

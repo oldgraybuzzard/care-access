@@ -85,7 +85,7 @@ class UserManagementScreen extends ConsumerWidget {
   }
 
   Future<void> _showInviteUserDialog(
-      BuildContext context, WidgetRef ref) async {
+      BuildContext context, WidgetRef ref,) async {
     final nameController = TextEditingController();
     final emailController = TextEditingController();
     final formKey = GlobalKey<FormState>();
@@ -353,7 +353,7 @@ class _UserCard extends ConsumerWidget {
   }
 
   Future<void> _showManageRolesDialog(
-      BuildContext context, WidgetRef ref) async {
+      BuildContext context, WidgetRef ref,) async {
     await showDialog(
       context: context,
       builder: (dialogContext) => Consumer(

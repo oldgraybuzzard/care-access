@@ -79,7 +79,7 @@ class AboutScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Core Principles Section
-            _SectionCard(
+            const _SectionCard(
               title: 'Core Principles',
               icon: Icons.favorite,
               iconColor: Colors.red,
@@ -92,27 +92,27 @@ class AboutScreen extends StatelessWidget {
                     description:
                         'Every decision prioritizes child safety and dignity',
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   _PrincipleItem(
                     icon: Icons.lock,
                     title: 'Secure by Design',
                     description:
                         'Encryption, secure storage, and monitored access',
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   _PrincipleItem(
                     icon: Icons.visibility_off,
                     title: 'Least-Privilege Access',
                     description: 'Users see only what they need for their role',
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   _PrincipleItem(
                     icon: Icons.remove_red_eye,
                     title: 'Read-Only by Default',
                     description:
                         'View information without altering official records',
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   _PrincipleItem(
                     icon: Icons.policy,
                     title: 'Purpose-Limited Use',

@@ -14,13 +14,20 @@ class AppDrawer extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
     final user = authState.value?.user;
+    final isSuperAdmin = user?.isSuperAdmin ?? false;
 
+    // SuperAdmins get a completely different drawer
+    if (isSuperAdmin) {
+      return _buildSuperAdminDrawer(context, ref, user);
+    }
+
+    // Organization users get the standard drawer
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: CareAccessColors.teal,
             ),
             child: Column(
@@ -73,14 +80,6 @@ class AppDrawer extends ConsumerWidget {
             title: const Text(AppStrings.navChildrenFamilies),
             onTap: () {
               context.go('/children');
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.folder_open),
-            title: const Text(AppStrings.navCases),
-            onTap: () {
-              context.go('/cases');
               Navigator.pop(context);
             },
           ),
@@ -143,6 +142,99 @@ class AppDrawer extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build SuperAdmin-specific drawer
+  Widget _buildSuperAdminDrawer(BuildContext context, WidgetRef ref, user) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(
+              color: CareAccessColors.teal,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const BrandLogo.wordmark(
+                  height: 32,
+                  color: Colors.white,
+                ),
+                const Spacer(),
+                Row(
+                  children: [
+                    const Icon(Icons.admin_panel_settings,
+                        color: Colors.white, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'SuperAdmin',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  user?.name ?? 'User',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  user?.email ?? '',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.dashboard),
+            title: const Text('Dashboard'),
+            onTap: () {
+              context.go('/admin/dashboard');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.business),
+            title: const Text('Organizations'),
+            onTap: () {
+              context.go('/admin/organizations');
+              Navigator.pop(context);
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text(AppStrings.navSettings),
+            onTap: () {
+              context.go('/settings');
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text(AppStrings.navLogout),
+            onTap: () async {
+              await ref.read(authServiceProvider).logout();
+              if (context.mounted) {
+                context.go('/login');
+              }
+            },
           ),
         ],
       ),

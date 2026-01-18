@@ -45,10 +45,10 @@ class GovernanceDialogs {
   static void showReadOnlyBanner(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Row(
+        content: const Row(
           children: [
-            const Icon(Icons.visibility, color: Colors.white),
-            const SizedBox(width: 12),
+            Icon(Icons.visibility, color: Colors.white),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,12 +56,12 @@ class GovernanceDialogs {
                 children: [
                   Text(
                     AppStrings.readOnlyBannerTitle,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     AppStrings.readOnlyBannerMessage,
-                    style: const TextStyle(fontSize: 12),
+                    style: TextStyle(fontSize: 12),
                   ),
                 ],
               ),
@@ -110,7 +110,7 @@ class _FirstLoginAcknowledgementDialog extends StatelessWidget {
         FilledButton.icon(
           onPressed: () => Navigator.of(context).pop(true),
           icon: const Icon(Icons.check_circle),
-          label: Text(AppStrings.acknowledgeButton),
+          label: const Text(AppStrings.acknowledgeButton),
         ),
       ],
     );
@@ -145,12 +145,12 @@ class _ExportWarningDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(false),
-          child: Text(AppStrings.exportCancelButton),
+          child: const Text(AppStrings.exportCancelButton),
         ),
         FilledButton.icon(
           onPressed: () => Navigator.of(context).pop(true),
           icon: const Icon(Icons.download),
-          label: Text(AppStrings.exportContinueButton),
+          label: const Text(AppStrings.exportContinueButton),
         ),
       ],
     );

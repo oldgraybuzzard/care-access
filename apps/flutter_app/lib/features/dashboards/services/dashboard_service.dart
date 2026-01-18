@@ -86,15 +86,15 @@ class DashboardService {
       switch (statusCode) {
         case 401:
           return Exception(
-              'Your session has expired to protect confidential information. Please sign in again.');
+              'Your session has expired to protect confidential information. Please sign in again.',);
         case 403:
           return Exception(
-              'You do not have permission to view this information.');
+              'You do not have permission to view this information.',);
         case 404:
           return Exception('The requested information could not be found.');
         case 500:
           return Exception(
-              'Unable to load data at this time. Please try again later.');
+              'Unable to load data at this time. Please try again later.',);
         default:
           return Exception('Error: $message');
       }
