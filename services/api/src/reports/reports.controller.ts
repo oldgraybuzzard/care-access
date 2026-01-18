@@ -49,7 +49,11 @@ export class ReportsController {
   @Post('custom/run')
   @ApiOperation({ summary: 'Run a custom ad-hoc report' })
   async runCustomReport(@Request() req, @Body() runCustomReportDto: RunCustomReportDto) {
-    const result = await this.reportsService.runCustomReport(runCustomReportDto, req.user.userId);
+    const result = await this.reportsService.runCustomReport(
+      runCustomReportDto,
+      req.user.userId,
+      req.user.organizationId,
+    );
 
     // Audit log
     await this.auditService.log({

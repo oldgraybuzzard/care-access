@@ -103,7 +103,7 @@ export class ReportsService {
   }
 
   // Run a custom report
-  async runCustomReport(dto: RunCustomReportDto, userId: string) {
+  async runCustomReport(dto: RunCustomReportDto, userId: string, organizationId: string) {
     // Create report run record
     const reportRun = await this.prisma.reportRun.create({
       data: {
@@ -119,16 +119,40 @@ export class ReportsService {
 
       switch (dto.dataset) {
         case 'clients':
-          data = await this.queryClients(dto);
+          data = await this.queryClients(dto, organizationId);
           break;
         case 'cases':
-          data = await this.queryCases(dto);
+          data = await this.queryCases(dto, organizationId);
           break;
         case 'activities':
-          data = await this.queryActivities(dto);
+          data = await this.queryActivities(dto, organizationId);
           break;
         case 'services':
-          data = await this.queryServices(dto);
+          data = await this.queryServices(dto, organizationId);
+          break;
+        case 'children':
+          data = await this.queryChildren(dto, organizationId);
+          break;
+        case 'education':
+          data = await this.queryEducation(dto, organizationId);
+          break;
+        case 'behavioral_incidents':
+          data = await this.queryBehavioralIncidents(dto, organizationId);
+          break;
+        case 'goals':
+          data = await this.queryGoals(dto, organizationId);
+          break;
+        case 'assessments':
+          data = await this.queryAssessments(dto, organizationId);
+          break;
+        case 'medical_records':
+          data = await this.queryMedicalRecords(dto, organizationId);
+          break;
+        case 'home_visits':
+          data = await this.queryHomeVisits(dto, organizationId);
+          break;
+        case 'families':
+          data = await this.queryFamilies(dto, organizationId);
           break;
         default:
           throw new BadRequestException('Invalid dataset');
@@ -271,8 +295,10 @@ export class ReportsService {
   }
 
   // Custom Report Query Methods
-  private async queryClients(dto: RunCustomReportDto) {
-    const where: any = {};
+  private async queryClients(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      organizationId,
+    };
 
     if (dto.filters?.programId) {
       where.programId = dto.filters.programId;
@@ -290,8 +316,10 @@ export class ReportsService {
     });
   }
 
-  private async queryCases(dto: RunCustomReportDto) {
-    const where: any = {};
+  private async queryCases(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      organizationId,
+    };
 
     if (dto.filters?.programId) {
       where.programId = dto.filters.programId;
@@ -325,8 +353,12 @@ export class ReportsService {
     });
   }
 
-  private async queryActivities(dto: RunCustomReportDto) {
-    const where: any = {};
+  private async queryActivities(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      case: {
+        organizationId,
+      },
+    };
 
     if (dto.filters?.activityType) {
       where.activityType = dto.filters.activityType;
@@ -354,8 +386,12 @@ export class ReportsService {
     });
   }
 
-  private async queryServices(dto: RunCustomReportDto) {
-    const where: any = {};
+  private async queryServices(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      case: {
+        organizationId,
+      },
+    };
 
     if (dto.filters?.serviceType) {
       where.serviceType = dto.filters.serviceType;
@@ -377,6 +413,313 @@ export class ReportsService {
         case: {
           include: {
             client: true,
+          },
+        },
+      },
+    });
+  }
+
+  private async queryChildren(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      organizationId,
+    };
+
+    if (dto.filters?.status) {
+      where.status = dto.filters.status;
+    }
+
+    if (dto.filters?.gender) {
+      where.gender = dto.filters.gender;
+    }
+
+    if (dto.filters?.ageMin || dto.filters?.ageMax) {
+      const now = new Date();
+      where.dateOfBirth = {};
+
+      if (dto.filters.ageMax) {
+        const minDate = new Date(now.getFullYear() - dto.filters.ageMax - 1, now.getMonth(), now.getDate());
+        where.dateOfBirth.gte = minDate;
+      }
+
+      if (dto.filters.ageMin) {
+        const maxDate = new Date(now.getFullYear() - dto.filters.ageMin, now.getMonth(), now.getDate());
+        where.dateOfBirth.lte = maxDate;
+      }
+    }
+
+    return this.prisma.child.findMany({
+      where,
+      include: {
+        family: true,
+        educationRecords: {
+          orderBy: { schoolYear: 'desc' },
+          take: 1,
+        },
+      },
+    });
+  }
+
+  private async queryEducation(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      organizationId,
+    };
+
+    if (dto.filters?.childId) {
+      where.childId = dto.filters.childId;
+    }
+
+    if (dto.filters?.schoolYear) {
+      where.schoolYear = dto.filters.schoolYear;
+    }
+
+    if (dto.filters?.gradeLevel) {
+      where.gradeLevel = dto.filters.gradeLevel;
+    }
+
+    if (dto.filters?.hasIep !== undefined) {
+      where.hasIep = dto.filters.hasIep;
+    }
+
+    if (dto.filters?.has504Plan !== undefined) {
+      where.has504Plan = dto.filters.has504Plan;
+    }
+
+    if (dto.filters?.gpaMin || dto.filters?.gpaMax) {
+      where.gpa = {};
+      if (dto.filters.gpaMin) {
+        where.gpa.gte = dto.filters.gpaMin;
+      }
+      if (dto.filters.gpaMax) {
+        where.gpa.lte = dto.filters.gpaMax;
+      }
+    }
+
+    return this.prisma.educationRecord.findMany({
+      where,
+      include: {
+        child: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            dateOfBirth: true,
+          },
+        },
+      },
+      orderBy: {
+        schoolYear: 'desc',
+      },
+    });
+  }
+
+  private async queryBehavioralIncidents(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      organizationId,
+    };
+
+    if (dto.filters?.childId) {
+      where.childId = dto.filters.childId;
+    }
+
+    if (dto.filters?.incidentType) {
+      where.incidentType = dto.filters.incidentType;
+    }
+
+    if (dto.filters?.severityLevel) {
+      where.severityLevel = dto.filters.severityLevel;
+    }
+
+    if (dto.filters?.startDate || dto.filters?.endDate) {
+      where.incidentDate = {};
+      if (dto.filters.startDate) {
+        where.incidentDate.gte = new Date(dto.filters.startDate);
+      }
+      if (dto.filters.endDate) {
+        where.incidentDate.lte = new Date(dto.filters.endDate);
+      }
+    }
+
+    return this.prisma.behavioralIncident.findMany({
+      where,
+      include: {
+        child: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: {
+        incidentDate: 'desc',
+      },
+    });
+  }
+
+  private async queryGoals(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      organizationId,
+    };
+
+    if (dto.filters?.childId) {
+      where.childId = dto.filters.childId;
+    }
+
+    if (dto.filters?.goalCategory) {
+      where.goalCategory = dto.filters.goalCategory;
+    }
+
+    if (dto.filters?.goalStatus) {
+      where.status = dto.filters.goalStatus;
+    }
+
+    return this.prisma.goal.findMany({
+      where,
+      include: {
+        child: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        progress: {
+          orderBy: { progressDate: 'desc' },
+          take: 5,
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
+  private async queryAssessments(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      organizationId,
+    };
+
+    if (dto.filters?.childId) {
+      where.childId = dto.filters.childId;
+    }
+
+    if (dto.filters?.startDate || dto.filters?.endDate) {
+      where.assessmentDate = {};
+      if (dto.filters.startDate) {
+        where.assessmentDate.gte = new Date(dto.filters.startDate);
+      }
+      if (dto.filters.endDate) {
+        where.assessmentDate.lte = new Date(dto.filters.endDate);
+      }
+    }
+
+    return this.prisma.assessment.findMany({
+      where,
+      include: {
+        child: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: {
+        assessmentDate: 'desc',
+      },
+    });
+  }
+
+  private async queryMedicalRecords(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      organizationId,
+    };
+
+    if (dto.filters?.childId) {
+      where.childId = dto.filters.childId;
+    }
+
+    if (dto.filters?.startDate || dto.filters?.endDate) {
+      where.appointmentDate = {};
+      if (dto.filters.startDate) {
+        where.appointmentDate.gte = new Date(dto.filters.startDate);
+      }
+      if (dto.filters.endDate) {
+        where.appointmentDate.lte = new Date(dto.filters.endDate);
+      }
+    }
+
+    return this.prisma.medicalRecord.findMany({
+      where,
+      include: {
+        child: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: {
+        appointmentDate: 'desc',
+      },
+    });
+  }
+
+  private async queryHomeVisits(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      organizationId,
+    };
+
+    if (dto.filters?.childId) {
+      where.childId = dto.filters.childId;
+    }
+
+    if (dto.filters?.startDate || dto.filters?.endDate) {
+      where.visitDate = {};
+      if (dto.filters.startDate) {
+        where.visitDate.gte = new Date(dto.filters.startDate);
+      }
+      if (dto.filters.endDate) {
+        where.visitDate.lte = new Date(dto.filters.endDate);
+      }
+    }
+
+    return this.prisma.homeVisit.findMany({
+      where,
+      include: {
+        child: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: {
+        visitDate: 'desc',
+      },
+    });
+  }
+
+  private async queryFamilies(dto: RunCustomReportDto, organizationId: string) {
+    const where: any = {
+      organizationId,
+    };
+
+    if (dto.filters?.status) {
+      where.status = dto.filters.status;
+    }
+
+    return this.prisma.family.findMany({
+      where,
+      include: {
+        children: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            status: true,
           },
         },
       },
