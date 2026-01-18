@@ -68,6 +68,21 @@ export class ReportsService {
         case 'Services Delivered by Period':
           data = await this.getServicesDeliveredByPeriod(organizationId, dto.filters);
           break;
+        case 'Children by Status':
+          data = await this.getChildrenByStatus(organizationId, dto.filters);
+          break;
+        case 'Services Delivered':
+          data = await this.getServicesDelivered(organizationId, dto.filters);
+          break;
+        case 'Program Enrollment':
+          data = await this.getProgramEnrollment(organizationId, dto.filters);
+          break;
+        case 'Monthly Activity Summary':
+          data = await this.getMonthlyActivitySummary(organizationId, dto.filters);
+          break;
+        case 'Outcome Metrics':
+          data = await this.getOutcomeMetrics(organizationId, dto.filters);
+          break;
         default:
           throw new BadRequestException('Unknown report type');
       }
@@ -730,6 +745,109 @@ export class ReportsService {
         },
       },
     });
+  }
+
+  // Additional Standard Report Implementations
+  private async getChildrenByStatus(organizationId: string, filters: any) {
+    return this.prisma.child.groupBy({
+      by: ['status'],
+      where: {
+        family: {
+          organizationId,
+        },
+        ...(filters?.status && { status: filters.status }),
+      },
+      _count: {
+        id: true,
+      },
+    });
+  }
+
+  private async getServicesDelivered(organizationId: string, filters: any) {
+    const startDate = filters?.startDate ? new Date(filters.startDate) : new Date(new Date().setMonth(new Date().getMonth() - 1));
+    const endDate = filters?.endDate ? new Date(filters.endDate) : new Date();
+
+    return this.prisma.service.findMany({
+      where: {
+        case: {
+          organizationId,
+        },
+        startAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      include: {
+        case: {
+          select: {
+            id: true,
+            client: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        startAt: 'desc',
+      },
+    });
+  }
+
+  private async getProgramEnrollment(organizationId: string, filters: any) {
+    return this.prisma.case.groupBy({
+      by: ['programId'],
+      where: {
+        organizationId,
+        status: 'active',
+        ...(filters?.programId && { programId: filters.programId }),
+      },
+      _count: {
+        id: true,
+      },
+    });
+  }
+
+  private async getMonthlyActivitySummary(organizationId: string, filters: any) {
+    const startDate = filters?.startDate ? new Date(filters.startDate) : new Date(new Date().setMonth(new Date().getMonth() - 1));
+    const endDate = filters?.endDate ? new Date(filters.endDate) : new Date();
+
+    return this.prisma.activity.groupBy({
+      by: ['activityType'],
+      where: {
+        case: {
+          organizationId,
+        },
+        occurredAt: {
+          gte: startDate,
+          lte: endDate,
+        },
+      },
+      _count: {
+        id: true,
+      },
+    });
+  }
+
+  private async getOutcomeMetrics(organizationId: string, filters: any) {
+    // Get goal completion metrics
+    const goals = await this.prisma.goal.groupBy({
+      by: ['status'],
+      where: {
+        child: {
+          family: {
+            organizationId,
+          },
+        },
+      },
+      _count: {
+        id: true,
+      },
+    });
+
+    return goals;
   }
 }
 
