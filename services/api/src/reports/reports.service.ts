@@ -583,7 +583,7 @@ export class ReportsService {
             lastName: true,
           },
         },
-        progress: {
+        progressNotes: {
           orderBy: { progressDate: 'desc' },
           take: 5,
         },
@@ -640,12 +640,12 @@ export class ReportsService {
     }
 
     if (dto.filters?.startDate || dto.filters?.endDate) {
-      where.appointmentDate = {};
+      where.recordDate = {};
       if (dto.filters.startDate) {
-        where.appointmentDate.gte = new Date(dto.filters.startDate);
+        where.recordDate.gte = new Date(dto.filters.startDate);
       }
       if (dto.filters.endDate) {
-        where.appointmentDate.lte = new Date(dto.filters.endDate);
+        where.recordDate.lte = new Date(dto.filters.endDate);
       }
     }
 
@@ -661,7 +661,7 @@ export class ReportsService {
         },
       },
       orderBy: {
-        appointmentDate: 'desc',
+        recordDate: 'desc',
       },
     });
   }
@@ -671,8 +671,8 @@ export class ReportsService {
       organizationId,
     };
 
-    if (dto.filters?.childId) {
-      where.childId = dto.filters.childId;
+    if (dto.filters?.familyId) {
+      where.familyId = dto.filters.familyId;
     }
 
     if (dto.filters?.startDate || dto.filters?.endDate) {
@@ -688,11 +688,17 @@ export class ReportsService {
     return this.prisma.homeVisit.findMany({
       where,
       include: {
-        child: {
+        family: {
           select: {
             id: true,
-            firstName: true,
-            lastName: true,
+            familyName: true,
+            children: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
           },
         },
       },

@@ -79,6 +79,9 @@ export class RunCustomReportDto {
     goalCategory?: string;
     goalStatus?: string;
 
+    // Family/Home Visit filters
+    familyId?: string;
+
     [key: string]: any;
   };
 
